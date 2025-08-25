@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+    <h1>User Profile</h1>
+    <!-- Profile Picture Section -->
+    <div>
+        {% if user.profile.profile_pic %}
+            <img src="{{ user.profile.profile_pic.url }}" alt="Profile Picture" width="150" height="150" style="object-fit:cover; border-radius:50%;">
+        {% else %}
+            <img src="{% static 'default.png' %}" alt="Default Profile Picture" width="150" height="150" style="object-fit:cover; border-radius:50%;">
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="profile_pic">
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+    <p>Welcome, {{ user.username }}!</p>
+    <p>Email:</p><input type="text" value="{{ user.email }}">
+    <p>First Name:</p><input type="text" value="{{ user.first_name }}">
+    <p>Last Name:</p><input type="text" value="{{ user.last_name }}">
+{% endblock %}
