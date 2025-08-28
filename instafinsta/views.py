@@ -81,10 +81,43 @@ def feed(request):
 
 @login_required
 def inbox(request):
-    """Show all users you have conversations with."""
+    # Get all users except the logged-in one
     users = User.objects.exclude(id=request.user.id)
-    return render(request, "messages/inbox.html", {"users": users})
 
+    # Determine the receiver (from query param ?user=id)
+    user_id = request.GET.get("user")
+    receiver = None
+    messages = None
+    form = None
+
+    if user_id:
+        receiver = get_object_or_404(User, id=user_id)
+
+        # Messages between current user and receiver
+        messages = Message.objects.filter(
+            sender__in=[request.user, receiver],
+            receiver__in=[request.user, receiver],
+        ).order_by("timestamp")
+
+        # Handle new message post
+        if request.method == "POST":
+            form = MessageForm(request.POST)
+            if form.is_valid():
+                msg = form.save(commit=False)
+                msg.sender = request.user
+                msg.receiver = receiver
+                msg.save()
+                return redirect(f"/messages/?user={receiver.id}")
+        else:
+            form = MessageForm()
+
+    context = {
+        "users": users,
+        "receiver": receiver,
+        "messages": messages,
+        "form": form,
+    }
+    return render(request, "messages/inbox.html", context)
 
 @login_required
 def message_thread(request, user_id):
