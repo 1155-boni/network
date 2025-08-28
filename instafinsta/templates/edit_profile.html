@@ -1,94 +1,96 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends 'base.html' %}
 {% load widget_tweaks %}
 
+{% block title %}Edit Profile{% endblock %}
 
-<div class="max-w-xl mx-auto mt-10">
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6">
 
-  <!-- Messages -->
-  {% if messages %}
-    <div class="mb-5 space-y-2">
-      {% for message in messages %}
-        <div class="p-3 rounded-lg text-sm
-                    {% if message.tags == 'success' %}
-                      bg-green-100 text-green-700 border border-green-300
-                    {% elif message.tags == 'error' %}
-                      bg-red-100 text-red-700 border border-red-300
-                    {% else %}
-                      bg-blue-100 text-blue-700 border border-blue-300
-                    {% endif %}">
-          {{ message }}
+      <!-- Messages -->
+      {% if messages %}
+        <div class="mb-4">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
         </div>
-      {% endfor %}
+      {% endif %}
+
+      <!-- Card -->
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4 p-md-5">
+          <h3 class="card-title text-center mb-4">Edit Profile</h3>
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Profile Picture -->
+            <div class="text-center mb-4">
+              {% if user.profile.profile_pic %}
+                <img src="{{ user.profile.profile_pic.url }}" 
+                     class="rounded-circle border shadow-sm mb-2" width="120" height="120" style="object-fit:cover;">
+              {% else %}
+                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center border mb-2" 
+                     style="width:120px; height:120px;">
+                  <span class="text-muted">No Photo</span>
+                </div>
+              {% endif %}
+              <div>
+                <input type="file" name="profile_pic" id="id_profile_pic" class="d-none" accept="image/*">
+                <label for="id_profile_pic" class="btn btn-primary btn-sm">Change Photo</label>
+              </div>
+            </div>
+
+            <!-- First & Last Name -->
+            <div class="row">
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label">First Name</label>
+                <input type="text" name="first_name" value="{{ user.first_name }}" class="form-control">
+              </div>
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label">Last Name</label>
+                <input type="text" name="last_name" value="{{ user.last_name }}" class="form-control">
+              </div>
+            </div>
+
+            <!-- Username & Email -->
+            <div class="row">
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" value="{{ user.username }}" class="form-control">
+              </div>
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" value="{{ user.email }}" class="form-control">
+              </div>
+            </div>
+
+            <!-- Bio -->
+            <div class="mb-3">
+              <label class="form-label">Bio</label>
+              {{ form.bio|add_class:"form-control" }}
+            </div>
+
+            <!-- Location -->
+            <div class="mb-4">
+              <label class="form-label">Location</label>
+              {{ form.location|add_class:"form-control" }}
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'profile' %}" class="btn btn-outline-secondary w-50 me-2">Cancel</a>
+              <button type="submit" class="btn btn-primary w-50 ms-2">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
-  {% endif %}
-
-  <div class="bg-white rounded-2xl shadow-lg p-8">
-    <h2 class="text-2xl font-bold text-center mb-6">Edit Profile</h2>
-
-    <form method="post" enctype="multipart/form-data" class="space-y-6">
-      {% csrf_token %}
-
-      <!-- User Info -->
-      <div>
-        <h4 class="text-lg font-semibold mb-3 text-gray-700">User Info</h4>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">Username</label>
-          {{ user_form.username|add_class:"w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200" }}
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">Email</label>
-          {{ user_form.email|add_class:"w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200" }}
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">First Name</label>
-          {{ user_form.first_name|add_class:"w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200" }}
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">Last Name</label>
-          {{ user_form.last_name|add_class:"w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200" }}
-        </div>
-      </div>
-
-      <!-- Profile Info -->
-      <div>
-        <h4 class="text-lg font-semibold mb-3 text-gray-700">Profile Info</h4>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">Bio</label>
-          {{ profile_form.bio|add_class:"w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200" }}
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">Location</label>
-          {{ profile_form.location|add_class:"w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200" }}
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-2">Profile Picture</label>
-          {% if user.profile.profile_pic %}
-            <img src="{{ user.profile.profile_pic.url }}" 
-                 class="w-24 h-24 rounded-full object-cover mb-3 border border-gray-300" alt="Profile Picture">
-          {% endif %}
-          {{ profile_form.profile_pic|add_class:"block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100" }}
-        </div>
-      </div>
-
-      <!-- Buttons -->
-      <button type="submit" 
-              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow">
-        Save Changes
-      </button>
-      <a href="{% url 'profile' %}" 
-         class="block w-full text-center bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg shadow">
-        Cancel
-      </a>
-    </form>
   </div>
 </div>
-
 {% endblock %}
