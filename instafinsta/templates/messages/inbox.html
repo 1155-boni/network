@@ -10,20 +10,26 @@
                 <div class="card-header bg-primary text-white">
                     Conversations
                 </div>
-                <ul class="list-group list-group-flush">
-                    {% for user in users %}
-                        {% if user != request.user %}
-                        <li class="list-group-item {% if receiver and receiver.id == user.id %}active{% endif %}">
-                            <a href="{% url 'messages_with' user.id %}" class="text-decoration-none {% if receiver and receiver.id == user.id %}text-white{% else %}text-dark{% endif %}">
-                                {{ user.username }}
-                            </a>
-                        </li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if not users %}
-                        <li class="list-group-item text-muted">No conversations yet.</li>
-                    {% endif %}
-                </ul>
+                <ul class="list-group">
+  {% for convo in conversations %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <a href="{% url 'messages_with' convo.user.id %}">
+        {{ convo.user.username }}
+      </a>
+      <span>
+        {% if convo.last_message %}
+          <small class="text-muted">{{ convo.last_message.content|truncatechars:30 }}</small>
+        {% endif %}
+        {% if convo.unread_count > 0 %}
+          <span class="badge bg-danger">{{ convo.unread_count }}</span>
+        {% endif %}
+      </span>
+    </li>
+  {% empty %}
+    <li class="list-group-item">No conversations yet.</li>
+  {% endfor %}
+</ul>
+
             </div>
         </div>
 

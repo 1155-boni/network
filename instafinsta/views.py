@@ -5,9 +5,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
 from .models import Profile, Post, Message
-from django.db.models import Q
+from django.db.models import Q, Max
 from .forms import ProfileForm, MessageForm
 from django.db.models import Count
+
 
 
 # ---------------------------
@@ -82,44 +83,45 @@ def feed(request):
 
 @login_required
 def inbox(request):
-    # Get all users except the logged-in one
-    users = User.objects.exclude(id=request.user.id)
+    user = request.user
 
-    # Determine the receiver (from query param ?user=id)
-    user_id = request.GET.get("user")
-    receiver = None
-    messages = None
-    form = None
+    # Get all threads (sender or receiver = current user)
+    threads = (
+        Message.objects.filter(Q(sender=user) | Q(receiver=user))
+        .values("sender", "receiver")
+        .annotate(last_msg=Max("timestamp"))
+        .order_by("-last_msg")
+    )
 
-    if user_id:
-        receiver = get_object_or_404(User, id=user_id)
+    conversations = []
+    for t in threads:
+        other_id = t["receiver"] if t["sender"] == user.id else t["sender"]
 
-        # Messages between current user and receiver
-        messages = Message.objects.filter(
-            sender__in=[request.user, receiver],
-            receiver__in=[request.user, receiver],
-        ).order_by("timestamp")
+        # Get the actual user object
+        other_user = User.objects.get(id=other_id)
 
-        # Handle new message post
-        if request.method == "POST":
-            form = MessageForm(request.POST)
-            if form.is_valid():
-                msg = form.save(commit=False)
-                msg.sender = request.user
-                msg.receiver = receiver
-                msg.save()
-                return redirect(f"/messages/?user={receiver.id}")
-        else:
-            form = MessageForm()
+        # Count unread messages from this user
+        unread_count = Message.objects.filter(
+            sender_id=other_id, receiver=user, is_read=False
+        ).count()
 
-    context = {
-        "users": users,
-        "receiver": receiver,
-        "messages": messages,
-        "form": form,
-    }
-    return render(request, "messages/inbox.html", context)
+        # Get latest message between the two
+        last_message = (
+            Message.objects.filter(
+                Q(sender_id=other_id, receiver=user) | 
+                Q(sender=user, receiver_id=other_id)
+            )
+            .order_by("-timestamp")
+            .first()
+        )
 
+        conversations.append({
+            "user": other_user,            # pass full user object
+            "last_message": last_message,
+            "unread_count": unread_count,
+        })
+
+    return render(request, "messages/inbox.html", {"conversations": conversations})
 @login_required
 def message_thread(request, user_id):
     receiver = get_object_or_404(User, id=user_id)
@@ -191,3 +193,4 @@ def messages_list(request):
         )
     )
     return render(request, "messages/inbox.html", {"users": users})
+
