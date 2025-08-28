@@ -239,3 +239,9 @@ def explore(request):
         "query": query,
         "users": users,
     })
+
+@login_required
+def explore(request):
+    query = request.GET.get("q", "")
+    users = User.objects.filter(username__icontains=query) if query else []
+    return render(request, "explore.html", {"users": users, "query": query})

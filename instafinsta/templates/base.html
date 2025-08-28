@@ -18,7 +18,23 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
+          <!-- ✅ Search Bar -->
+          {% if request.user.is_authenticated %}
+          <form class="d-flex mx-auto" method="get" action="{% url 'explore' %}">
+            <input
+              class="form-control me-2"
+              type="search"
+              name="q"
+              placeholder="Search users..."
+              aria-label="Search"
+              style="width: 300px;"
+            />
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+          {% endif %}
+
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
               <a class="btn btn-primary me-2" href="{% url 'home' %}">Home</a>
@@ -35,7 +51,7 @@
                 <a class="btn btn-dark me-2" href="{% url 'profile' %}">Profile</a>
               </li>
 
-              <!-- ✅ New Explore Nav Item -->
+              <!-- Explore Button -->
               <li class="nav-item">
                 <a class="btn btn-info me-2" href="{% url 'explore' %}">Explore</a>
               </li>
