@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Explore{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width:700px;">
+  <div class="card shadow-lg p-4" style="border-radius:15px;">
+    <h2 class="mb-4 text-center">Explore Users</h2>
+
+    <!-- Search Form -->
+    <form method="get" action="{% url 'explore' %}" class="mb-4">
+      <div class="input-group">
+        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by username...">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
+    </form>
+
+    <!-- Results -->
+    {% if query %}
+      <h5 class="mb-3">Results for "{{ query }}":</h5>
+
+      {% if users %}
+        <ul class="list-group">
+          {% for user in users %}
+            <li class="list-group-item d-flex align-items-center justify-content-between">
+              
+              <!-- Profile picture -->
+              <div class="d-flex align-items-center">
+                {% if user.profile.profile_pic %}
+                  <img src="{{ user.profile.profile_pic.url }}" alt="Profile Picture"
+                       class="rounded-circle me-3" width="50" height="50" style="object-fit:cover;">
+                {% else %}
+                  <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
+                       style="width:50px; height:50px; color:white; font-size:18px;">
+                    {{ user.username|first|upper }}
+                  </div>
+                {% endif %}
+
+                <!-- Username & name -->
+                <div>
+                  <strong>{{ user.username }}</strong><br>
+                  <small class="text-muted">{{ user.first_name }} {{ user.last_name }}</small>
+                </div>
+              </div>
+
+              <!-- View Profile Button -->
+              <a href="{% url 'profile' user.username %}" class="btn btn-outline-primary btn-sm">
+                View Profile
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted">No users found.</p>
+      {% endif %}
+    {% else %}
+      <p class="text-muted text-center">Start typing a username to search.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
