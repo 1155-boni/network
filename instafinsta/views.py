@@ -226,3 +226,16 @@ def messages_list(request):
         )
     )
     return render(request, "messages/inbox.html", {"users": users})
+
+@login_required
+def explore(request):
+    query = request.GET.get("q", "")
+    users = []
+
+    if query:
+        users = User.objects.filter(Q(username__icontains=query))
+
+    return render(request, "explore.html", {
+        "query": query,
+        "users": users,
+    })
