@@ -4,6 +4,8 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
+
+
 <div style="max-width:600px; margin:40px auto;">
 
     <div style="background:white; border-radius:15px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:30px; text-align:center;">
@@ -12,11 +14,8 @@
 
         <!-- Profile Picture -->
         <div style="position:relative; display:inline-block; margin-bottom:20px;">
-
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-
-                <!-- Hidden File Input -->
                 <input type="file" id="fileInput" name="profile_pic" style="display:none;" onchange="this.form.submit();">
 
                 {% if user.profile.profile_pic %}
@@ -36,7 +35,6 @@
             </form>
 
             {% if user.profile.profile_pic %}
-            <!-- Remove Photo Button -->
             <form method="post" action="{% url 'remove_profile_pic' %}" 
                   onsubmit="return confirm('Are you sure you want to remove your profile picture?');"
                   style="margin-top:10px;">
@@ -55,6 +53,14 @@
             <p><strong>Email:</strong> {{ user.email }}</p>
             <p><strong>First Name:</strong> {{ user.first_name }}</p>
             <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+
+            {% if user.profile.bio %}
+                <p><strong>Bio:</strong> {{ user.profile.bio }}</p>
+            {% endif %}
+
+            {% if user.profile.location %}
+                <p><strong>Location:</strong> {{ user.profile.location }}</p>
+            {% endif %}
         </div>
 
         <!-- Edit Button -->
@@ -68,7 +74,6 @@
     </div>
 </div>
 
-<!-- JS for clickable circle -->
 <script>
 document.getElementById("fileInput").addEventListener("change", function() {
     this.form.submit();
