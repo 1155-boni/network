@@ -14,12 +14,21 @@ class Socialnetwork(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_pic = models.ImageField(upload_to='profile_pics/', default='default.jpg')
+    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
-    location = models.CharField(max_length=100, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+
+    # Followers system
+    followers = models.ManyToManyField(User, related_name='following', blank=True)
+
+    def followers_count(self):
+        return self.followers.count()
+
+    def following_count(self):
+        return Profile.objects.filter(followers=self.user).count()
 
     def __str__(self):
-        return f"{self.user.username}'s Profile"
+        return self.user.username
 
 
 class Post(models.Model):
