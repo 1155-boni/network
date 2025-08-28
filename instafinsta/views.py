@@ -177,3 +177,7 @@ def remove_profile_pic(request):
     if profile.profile_pic:  
         profile.profile_pic.delete(save=True)  # deletes file + clears DB field
     return redirect('profile')
+
+def messages_with(request, user_id):
+    other_user = get_object_or_404(User, id=user_id)
+    return render(request, "messages/thread.html", {"other_user": other_user})

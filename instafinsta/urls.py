@@ -12,7 +12,7 @@ urlpatterns = [
     path('feed/', feed, name='feed'),
     path('profile/edit/', edit_profile, name='edit_profile'),
     path('profile/remove-pic/', remove_profile_pic, name='remove_profile_pic'),
-    path('messages/', inbox, name='inbox')
-
+    path('messages/', inbox, name='inbox'),
+    path("messages/<int:user_id>/", views.messages_with, name="messages_with"),
 
 ]
