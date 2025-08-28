@@ -1,4 +1,5 @@
 from pyexpat.errors import messages
+from random import random
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
@@ -244,4 +245,22 @@ def explore(request):
 def explore(request):
     query = request.GET.get("q", "")
     users = User.objects.filter(username__icontains=query) if query else []
-    return render(request, "explore.html", {"users": users, "query": query})
+    return render(request, "explore.html", {"users": users, "query": query})@login_required
+def explore(request):
+    query = request.GET.get("q", "")
+
+    # If searching, show matching users
+    if query:
+        users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)
+        posts = []
+    else:
+        users = []
+        # Get random posts from other users
+        posts = list(Post.objects.exclude(user=request.user))
+        random.shuffle(posts)
+
+    return render(request, "explore.html", {
+        "users": users,
+        "posts": posts,
+        "query": query,
+    })
