@@ -6,7 +6,6 @@
 {% block content %}
 
 <div style="max-width:600px; margin:40px auto;">
-
     <!-- Messages -->
     {% if messages %}
       <div style="max-width:600px; margin-bottom:20px;">
@@ -71,6 +70,18 @@
             {% if user.profile.location %}
                 <p><strong>Location:</strong> {{ user.profile.location }}</p>
             {% endif %}
+        </div>
+
+        <!-- Followers / Following -->
+        <div style="display:flex; justify-content:space-around; margin:25px 0; text-align:center;">
+            <div>
+                <span style="font-weight:bold; font-size:18px;">{{ followers_count }}</span><br>
+                <span style="color:#666;">Followers</span>
+            </div>
+            <div>
+                <span style="font-weight:bold; font-size:18px;">{{ following_count }}</span><br>
+                <span style="color:#666;">Following</span>
+            </div>
         </div>
 
         <!-- Edit Button -->

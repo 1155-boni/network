@@ -58,8 +58,15 @@ def profile(request):
             profile.save()
             return redirect('profile')
 
-    return render(request, 'profile.html', {'profile': profile})
+    # counts
+    followers_count = profile.followers.count()
+    following_count = Profile.objects.filter(followers=request.user).count()
 
+    return render(request, 'profile.html', {
+        'profile': profile,
+        'followers_count': followers_count,
+        'following_count': following_count,
+    })
 # ---------------------------
 # Posts
 # ---------------------------
