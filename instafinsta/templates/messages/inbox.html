@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Inbox</h2>
+    {% if threads %}
+        <ul class="list-group">
+            {% for thread in threads %}
+                <li class="list-group-item">
+                    <a href="{% url 'thread_detail' thread.id %}">
+                        {{ thread }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No messages yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
