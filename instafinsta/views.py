@@ -7,6 +7,7 @@ from django.http import HttpResponseForbidden
 from .models import Profile, Post, Message
 from django.db.models import Q
 from .forms import ProfileForm, MessageForm
+from django.db.models import Count
 
 
 # ---------------------------
@@ -121,33 +122,32 @@ def inbox(request):
 
 @login_required
 def message_thread(request, user_id):
-    """Show conversation with a specific user."""
-    other_user = get_object_or_404(User, id=user_id)
-
-    # Get all messages between the two users
+    receiver = get_object_or_404(User, id=user_id)
     messages = Message.objects.filter(
-        Q(sender=request.user, receiver=other_user) |
-        Q(sender=other_user, receiver=request.user)
+        sender__in=[request.user, receiver],
+        receiver__in=[request.user, receiver]
     ).order_by("timestamp")
 
-    # Mark messages as read
-    Message.objects.filter(receiver=request.user, sender=other_user, is_read=False).update(is_read=True)
+    # Mark unread messages as read
+    Message.objects.filter(sender=receiver, receiver=request.user, is_read=False).update(is_read=True)
 
     if request.method == "POST":
         form = MessageForm(request.POST)
         if form.is_valid():
             msg = form.save(commit=False)
             msg.sender = request.user
-            msg.receiver = other_user
+            msg.receiver = receiver
             msg.save()
-            return redirect("message_thread", user_id=other_user.id)
+            return redirect("messages_with", user_id=receiver.id)
     else:
         form = MessageForm()
 
+    users = User.objects.exclude(id=request.user.id)
     return render(request, "messages/thread.html", {
-        "other_user": other_user,
+        "receiver": receiver,
         "messages": messages,
         "form": form,
+        "users": users,
     })
 
 
@@ -181,3 +181,13 @@ def remove_profile_pic(request):
 def messages_with(request, user_id):
     other_user = get_object_or_404(User, id=user_id)
     return render(request, "messages/thread.html", {"other_user": other_user})
+
+@login_required
+def messages_list(request):
+    users = User.objects.exclude(id=request.user.id).annotate(
+        unread_count=Count(
+            "sent_messages",
+            filter=Q(sent_messages__receiver=request.user, sent_messages__is_read=False)
+        )
+    )
+    return render(request, "messages/inbox.html", {"users": users})
