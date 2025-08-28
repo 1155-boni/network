@@ -4,22 +4,74 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-    <h1>User Profile</h1>
-    <!-- Profile Picture Section -->
-    <div>
-        {% if user.profile.profile_pic %}
-            <img src="{{ user.profile.profile_pic.url }}" alt="Profile Picture" width="150" height="150" style="object-fit:cover; border-radius:50%;">
-        {% else %}
-            <img src="{% static 'default.png' %}" alt="Default Profile Picture" width="150" height="150" style="object-fit:cover; border-radius:50%;">
-        {% endif %}
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="file" name="profile_pic">
-            <button type="submit">Upload</button>
-        </form>
+<div style="max-width:600px; margin:40px auto;">
+
+    <div style="background:white; border-radius:15px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:30px; text-align:center;">
+
+        <h2 style="font-family: Arial, sans-serif; margin-bottom:20px;">Profile</h2>
+
+        <!-- Profile Picture -->
+        <div style="position:relative; display:inline-block; margin-bottom:20px;">
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Hidden File Input -->
+                <input type="file" id="fileInput" name="profile_pic" style="display:none;" onchange="this.form.submit();">
+
+                {% if user.profile.profile_pic %}
+                    <label for="fileInput" style="cursor:pointer;">
+                        <img src="{{ user.profile.profile_pic.url }}" 
+                             alt="Profile Picture" 
+                             width="150" height="150" 
+                             style="object-fit:cover; border-radius:50%; border:3px solid #ddd;">
+                    </label>
+                {% else %}
+                    <label for="fileInput" style="cursor:pointer;">
+                        <div style="width:150px; height:150px; border-radius:50%; border:2px dashed #aaa; display:flex; align-items:center; justify-content:center; font-size:14px; color:#888;">
+                            Add Photo
+                        </div>
+                    </label>
+                {% endif %}
+            </form>
+
+            {% if user.profile.profile_pic %}
+            <!-- Remove Photo Button -->
+            <form method="post" action="{% url 'remove_profile_pic' %}" 
+                  onsubmit="return confirm('Are you sure you want to remove your profile picture?');"
+                  style="margin-top:10px;">
+                {% csrf_token %}
+                <button type="submit" 
+                        style="background:none; border:none; color:red; font-weight:bold; cursor:pointer;">
+                    Remove Photo
+                </button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- User Info -->
+        <div style="text-align:left; margin-top:20px; line-height:1.8;">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>First Name:</strong> {{ user.first_name }}</p>
+            <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+        </div>
+
+        <!-- Edit Button -->
+        <div style="margin-top:20px;">
+            <a href="{% url 'edit_profile' %}" 
+               style="background:#3897f0; color:white; padding:8px 20px; border-radius:8px; text-decoration:none; font-weight:bold;">
+               Edit Profile
+            </a>
+        </div>
+
     </div>
-    <p>Welcome, {{ user.username }}!</p>
-    <p>Email:</p><input type="text" value="{{ user.email }}">
-    <p>First Name:</p><input type="text" value="{{ user.first_name }}">
-    <p>Last Name:</p><input type="text" value="{{ user.last_name }}">
+</div>
+
+<!-- JS for clickable circle -->
+<script>
+document.getElementById("fileInput").addEventListener("change", function() {
+    this.form.submit();
+});
+</script>
 {% endblock %}

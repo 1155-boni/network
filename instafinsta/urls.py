@@ -8,4 +8,11 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
     path('profile/', profile, name='profile'),
     path('post/', create_post, name='create_post'),
+    path('messages/<int:user_id>/', message_thread, name='messages'),
+    path('feed/', feed, name='feed'),
+    path('profile/edit/', edit_profile, name='edit_profile'),
+    path('profile/remove-pic/', remove_profile_pic, name='remove_profile_pic'),
+    path('messages/', inbox, name='inbox')
+
+
 ]

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Feed{% endblock %}
+
+{% block content %}
+  <h2>Feed</h2>
+  <div>
+    {% for post in posts %}
+      <div class="post">
+        <h3>{{ post.caption }}</h3>
+        <p>{{ post.content }}</p>
+        {% if post.image %}
+          <img src="{{ post.image.url }}" alt="Post image" style="max-width:300px;">
+        {% endif %}
+        <small>By {{ post.user.username }} on {{ post.created_at }}</small>
+      </div>
+      <hr>
+    {% empty %}
+      <p>No posts yet.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

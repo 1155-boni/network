@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Inbox</h2>
+<ul>
+    {% for conversation in conversations %}
+        <li>
+            <a href="{% url 'message_thread' conversation.id %}">
+                Chat with {{ conversation.username }}
+            </a>
+        </li>
+    {% empty %}
+        <li>No conversations yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
+    

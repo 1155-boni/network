@@ -1,15 +1,9 @@
-
 {% extends 'base.html' %}
-{% block title %}
+{% load static %}
 
-                             instafinsta
+{% block title %}Home{% endblock %}
 
-{% endblock %}
 {% block content %}
-
-<div class="container mt-4">
-    <h1>Welcome to InstaFinsta!</h1>
-    <p>Your one-stop solution for all your social media needs.</p>
-</div>
-
+  <h1>Welcome to the Home Page!</h1>
+  {% include 'feed.html' %}
 {% endblock %}

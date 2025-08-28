@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow p-4" style="max-width: 600px; margin: auto; border-radius: 12px;">
+    <h3 class="mb-4 text-center">Create a New Post</h3>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      <!-- Caption -->
+      <div class="mb-3">
+        <label class="form-label">Caption</label>
+        <input type="text" name="caption" class="form-control" placeholder="Write a caption...">
+      </div>
+
+      <!-- Content -->
+      <div class="mb-3">
+        <label class="form-label">Content</label>
+        <textarea name="content" class="form-control" rows="3" placeholder="What's on your mind?"></textarea>
+      </div>
+
+      <!-- Image -->
+      <div class="mb-3">
+        <label class="form-label">Upload Image</label>
+        <input type="file" name="image" class="form-control">
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Post</button>
+      <a href="{% url 'feed' %}" class="btn btn-secondary w-100 mt-2">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

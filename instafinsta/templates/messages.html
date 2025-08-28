@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Sidebar: List of users to message -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    Conversations
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for user in users %}
+                        {% if user != request.user %}
+                        <li class="list-group-item">
+                            <a href="{% url 'messages_with' user.id %}">
+                                {{ user.username }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chat window -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    {% if receiver %}
+                        Chat with <strong>{{ receiver.username }}</strong>
+                    {% else %}
+                        <em>Select a user to start chatting</em>
+                    {% endif %}
+                </div>
+
+                <div class="card-body" style="height: 400px; overflow-y: scroll;">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="mb-3 {% if message.sender == request.user %}text-end{% endif %}">
+                                <div class="p-2 rounded 
+                                    {% if message.sender == request.user %}
+                                        bg-primary text-white
+                                    {% else %}
+                                        bg-light
+                                    {% endif %}
+                                    d-inline-block">
+                                    <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+                                    <br>
+                                    <small class="text-muted">{{ message.timestamp|date:"M d, H:i" }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No messages yet.</p>
+                    {% endif %}
+                </div>
+
+                {% if receiver %}
+                <div class="card-footer">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.content }}
+                        <button type="submit" class="btn btn-primary btn-sm mt-2">Send</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
