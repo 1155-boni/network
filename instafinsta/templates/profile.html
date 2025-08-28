@@ -5,8 +5,18 @@
 
 {% block content %}
 
-
 <div style="max-width:600px; margin:40px auto;">
+
+    <!-- Messages -->
+    {% if messages %}
+      <div style="max-width:600px; margin-bottom:20px;">
+        {% for message in messages %}
+          <div>
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
 
     <div style="background:white; border-radius:15px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:30px; text-align:center;">
 
@@ -79,4 +89,5 @@ document.getElementById("fileInput").addEventListener("change", function() {
     this.form.submit();
 });
 </script>
+
 {% endblock %}

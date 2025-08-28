@@ -21,11 +21,15 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ('caption', 'image')
         
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["username", "email", "first_name", "last_name"]
+
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['profile_pic', 'bio', 'location']
-
+        fields = ["bio", "location", "profile_pic"]
 class MessageForm(forms.ModelForm):
     class Meta:
         model = Message

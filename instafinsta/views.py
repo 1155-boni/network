@@ -7,8 +7,9 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
 from .models import Profile, Post, Message
 from django.db.models import Q, Max
-from .forms import ProfileForm, MessageForm
+from .forms import ProfileForm, MessageForm, UserForm
 from django.db.models import Count
+
 
 
 
@@ -162,33 +163,36 @@ def home(request):
         return redirect('feed')
     return redirect('login')
 
+from django.contrib import messages
+from django.shortcuts import render, redirect
+
 @login_required
 def edit_profile(request):
-    profile = request.user.profile
     user = request.user
+    profile = request.user.profile
 
     if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            # Save profile fields (bio, location, profile_pic)
-            form.save()
+        user_form = UserForm(request.POST, instance=user)
+        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
 
-            # Save user fields (username, email, first/last name)
-            user.username = request.POST.get("username", user.username)
-            user.email = request.POST.get("email", user.email)
-            user.first_name = request.POST.get("first_name", user.first_name)
-            user.last_name = request.POST.get("last_name", user.last_name)
-            user.save()
-
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
             messages.success(request, "Profile updated successfully.")
             return redirect('profile')
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
-        form = ProfileForm(instance=profile)
+        user_form = UserForm(instance=user)
+        profile_form = ProfileForm(instance=profile)
 
     return render(request, 'edit_profile.html', {
-        'form': form,
-        'user': user,   # so template can pre-fill values
+        'user_form': user_form,
+        'profile_form': profile_form,
     })
+
+
+
 @login_required
 def remove_profile_pic(request):
     profile = request.user.profile
@@ -209,4 +213,3 @@ def messages_list(request):
         )
     )
     return render(request, "messages/inbox.html", {"users": users})
-
