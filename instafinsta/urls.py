@@ -14,5 +14,7 @@ urlpatterns = [
     path('profile/remove-pic/', remove_profile_pic, name='remove_profile_pic'),
     path('messages/', inbox, name='inbox'),
     path("messages/<int:user_id>/", views.messages_with, name="messages_with"),
+    path("profile/", views.profile, name="my_profile"),  
+    path("profile/<str:username>/", views.profile, name="profile"),
 
 ]

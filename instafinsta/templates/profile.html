@@ -4,101 +4,55 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
+<div class="container mt-5" style="max-width:700px;">
+  <div class="card shadow-lg p-4 text-center" style="border-radius:15px;">
 
-<div style="max-width:600px; margin:40px auto;">
-    <!-- Messages -->
-    {% if messages %}
-      <div style="max-width:600px; margin-bottom:20px;">
-        {% for message in messages %}
-          <div>
-            {{ message }}
-          </div>
-        {% endfor %}
-      </div>
+    <!-- Username -->
+    <h2 class="mb-3">{{ profile.user.username }}'s Profile</h2>
+
+    <!-- Profile Picture -->
+    <div class="mb-3">
+      {% if profile.profile_pic %}
+        <img src="{{ profile.profile_pic.url }}" 
+             class="rounded-circle shadow" 
+             width="150" height="150" 
+             style="object-fit:cover;">
+      {% else %}
+        <div class="rounded-circle bg-light d-flex justify-content-center align-items-center shadow"
+             style="width:150px; height:150px; font-size:14px; color:#888;">
+          No Photo
+        </div>
+      {% endif %}
+    </div>
+
+    {% if is_owner %}
+    <!-- Change Photo (only for owner) -->
+    <form method="post" enctype="multipart/form-data" class="mb-3">
+      {% csrf_token %}
+      <input type="file" name="profile_pic" class="form-control mb-2" onchange="this.form.submit();">
+    </form>
     {% endif %}
 
-    <div style="background:white; border-radius:15px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:30px; text-align:center;">
-
-        <h2 style="font-family: Arial, sans-serif; margin-bottom:20px;">Profile</h2>
-
-        <!-- Profile Picture -->
-        <div style="position:relative; display:inline-block; margin-bottom:20px;">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="file" id="fileInput" name="profile_pic" style="display:none;" onchange="this.form.submit();">
-
-                {% if user.profile.profile_pic %}
-                    <label for="fileInput" style="cursor:pointer;">
-                        <img src="{{ user.profile.profile_pic.url }}" 
-                             alt="Profile Picture" 
-                             width="150" height="150" 
-                             style="object-fit:cover; border-radius:50%; border:3px solid #ddd;">
-                    </label>
-                {% else %}
-                    <label for="fileInput" style="cursor:pointer;">
-                        <div style="width:150px; height:150px; border-radius:50%; border:2px dashed #aaa; display:flex; align-items:center; justify-content:center; font-size:14px; color:#888;">
-                            Add Photo
-                        </div>
-                    </label>
-                {% endif %}
-            </form>
-
-            {% if user.profile.profile_pic %}
-            <form method="post" action="{% url 'remove_profile_pic' %}" 
-                  onsubmit="return confirm('Are you sure you want to remove your profile picture?');"
-                  style="margin-top:10px;">
-                {% csrf_token %}
-                <button type="submit" 
-                        style="background:none; border:none; color:red; font-weight:bold; cursor:pointer;">
-                    Remove Photo
-                </button>
-            </form>
-            {% endif %}
-        </div>
-
-        <!-- User Info -->
-        <div style="text-align:left; margin-top:20px; line-height:1.8;">
-            <p><strong>Username:</strong> {{ user.username }}</p>
-            <p><strong>Email:</strong> {{ user.email }}</p>
-            <p><strong>First Name:</strong> {{ user.first_name }}</p>
-            <p><strong>Last Name:</strong> {{ user.last_name }}</p>
-
-            {% if user.profile.bio %}
-                <p><strong>Bio:</strong> {{ user.profile.bio }}</p>
-            {% endif %}
-
-            {% if user.profile.location %}
-                <p><strong>Location:</strong> {{ user.profile.location }}</p>
-            {% endif %}
-        </div>
-
-        <!-- Followers / Following -->
-        <div style="display:flex; justify-content:space-around; margin:25px 0; text-align:center;">
-            <div>
-                <span style="font-weight:bold; font-size:18px;">{{ followers_count }}</span><br>
-                <span style="color:#666;">Followers</span>
-            </div>
-            <div>
-                <span style="font-weight:bold; font-size:18px;">{{ following_count }}</span><br>
-                <span style="color:#666;">Following</span>
-            </div>
-        </div>
-
-        <!-- Edit Button -->
-        <div style="margin-top:20px;">
-            <a href="{% url 'edit_profile' %}" 
-               style="background:#3897f0; color:white; padding:8px 20px; border-radius:8px; text-decoration:none; font-weight:bold;">
-               Edit Profile
-            </a>
-        </div>
-
+    <!-- Profile Info -->
+    <div class="text-start mt-3" style="line-height:1.8;">
+      <p><strong>Email:</strong> {{ profile.user.email }}</p>
+      <p><strong>First Name:</strong> {{ profile.user.first_name }}</p>
+      <p><strong>Last Name:</strong> {{ profile.user.last_name }}</p>
+      <p><strong>Bio:</strong> {{ profile.bio|default:"No bio yet" }}</p>
+      <p><strong>Location:</strong> {{ profile.location|default:"Not set" }}</p>
     </div>
+
+    <!-- Followers / Following -->
+    <div class="d-flex justify-content-around my-4">
+      <div><strong>{{ followers_count }}</strong> Followers</div>
+      <div><strong>{{ following_count }}</strong> Following</div>
+    </div>
+
+    {% if is_owner %}
+      <!-- Edit Button for Owner -->
+      <a href="{% url 'edit_profile' %}" class="btn btn-primary w-100">Edit Profile</a>
+    {% endif %}
+
+  </div>
 </div>
-
-<script>
-document.getElementById("fileInput").addEventListener("change", function() {
-    this.form.submit();
-});
-</script>
-
 {% endblock %}
