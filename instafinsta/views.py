@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
 from .models import Profile, Post, Message
 from django.db.models import Q, Max
-from .forms import ProfileForm, MessageForm, UserForm
+from .forms import ProfileForm, MessageForm, UserForm, UserUpdateForm
 from django.db.models import Count
 
 
@@ -168,28 +168,28 @@ from django.shortcuts import render, redirect
 
 @login_required
 def edit_profile(request):
-    user = request.user
     profile = request.user.profile
 
-    if request.method == 'POST':
-        user_form = UserForm(request.POST, instance=user)
+    if request.method == "POST":
+        user_form = UserUpdateForm(request.POST, instance=request.user)
         profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
 
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
             messages.success(request, "Profile updated successfully.")
-            return redirect('profile')
+            return redirect("profile")
         else:
             messages.error(request, "Please correct the errors below.")
     else:
-        user_form = UserForm(instance=user)
+        user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileForm(instance=profile)
 
-    return render(request, 'edit_profile.html', {
-        'user_form': user_form,
-        'profile_form': profile_form,
-    })
+    return render(
+        request,
+        "edit_profile.html",
+        {"user_form": user_form, "profile_form": profile_form},
+    )
 
 
 
