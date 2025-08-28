@@ -16,5 +16,7 @@ urlpatterns = [
     path("messages/<int:user_id>/", views.messages_with, name="messages_with"),
     path("profile/", views.profile, name="my_profile"),  
     path("profile/<str:username>/", views.profile, name="profile"),
+    path("explore/", views.explore, name="explore"),
+
 
 ]
