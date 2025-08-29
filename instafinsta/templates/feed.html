@@ -8,18 +8,30 @@
   <h2>Feed</h2>
   <div>
     {% for post in posts %}
-<div class="card mb-3">
-  <div class="card-body">
-    <h5>{{ post.user.username }}</h5>
-    <p>{{ post.caption }}</p>
-    <p>{{ post.content }}</p>
-    {% if post.image %}
-  <img src="{{ post.image.url }}" class="img-fluid rounded" style="max-height: 400px;">
-{% endif %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>{{ post.user.username }}</h5>
+          <p>{{ post.caption }}</p>
+          <p>{{ post.content }}</p>
+          
+          {% if post.image %}
+            <img src="{{ post.image.url }}" class="img-fluid rounded" style="max-height: 400px;">
+          {% endif %}
 
-    <small class="text-muted">{{ post.created_at }}</small>
-  </div>
-</div>
-{% endfor %}
+          <small class="text-muted">{{ post.created_at }}</small>
+
+          <!-- Show delete button only if current user is the owner -->
+          {% if post.user == request.user %}
+            <form method="post" action="{% url 'delete_post' post.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm mt-2"
+                onclick="return confirm('Are you sure you want to delete this post?')">
+                Delete
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
   </div>
 {% endblock %}
