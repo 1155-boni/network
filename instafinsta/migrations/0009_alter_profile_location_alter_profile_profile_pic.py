@@ -16,8 +16,9 @@ class Migration(migrations.Migration):
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AlterField(
-            model_name='profile',
-            name='profile_pic',
-            field=models.ImageField(blank=True, null=True, upload_to='profiles/'),
-        ),
+    model_name='profile',
+    name='bio',
+    field=models.TextField(blank=True, null=True, default=""),
+),
+
     ]

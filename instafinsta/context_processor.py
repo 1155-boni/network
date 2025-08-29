@@ -8,3 +8,8 @@ def global_unread_count(request):
             ).count()
         }
     return {}
+
+def custom_context(request):
+    return {
+        "app_name": "InstaFinsta",
+    }

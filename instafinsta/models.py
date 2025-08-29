@@ -16,9 +16,8 @@ class Socialnetwork(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(blank=True)
-    profile_pic = CloudinaryField('image', blank=True, null=True)
-
+    bio = models.TextField(blank=True, null=True, default="")  # ✅ updated
+    image = models.ImageField(upload_to="profiles/", blank=True, null=True)
     # ✅ followers field (many-to-many to User)
     followers = models.ManyToManyField(User, related_name="following", blank=True)
 
