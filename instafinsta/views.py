@@ -1,5 +1,6 @@
 from pyexpat.errors import messages
 import random
+from xml.etree.ElementTree import Comment
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
@@ -386,3 +387,23 @@ def delete_post(request, post_id):
     post.delete()
     messages.success(request, "Post deleted successfully.")
     return redirect("feed")  # redirect back to feed
+
+
+@login_required
+def toggle_like(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user in post.likes.all():
+        post.likes.remove(request.user)  # Unlike
+    else:
+        post.likes.add(request.user)  # Like
+    return redirect(request.META.get("HTTP_REFERER", "feed"))
+
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == "POST":
+        content = request.POST.get("content")
+        if content.strip():
+            Comment.objects.create(post=post, user=request.user, content=content)
+    return redirect(request.META.get("HTTP_REFERER", "feed"))
