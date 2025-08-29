@@ -8,17 +8,17 @@
   <h2>Feed</h2>
   <div>
     {% for post in posts %}
-      <div class="post">
-        <h3>{{ post.caption }}</h3>
-        <p>{{ post.content }}</p>
-        {% if post.image %}
-          <img src="{{ post.image.url }}" alt="Post image" style="max-width:300px;">
-        {% endif %}
-        <small>By {{ post.user.username }} on {{ post.created_at }}</small>
-      </div>
-      <hr>
-    {% empty %}
-      <p>No posts yet.</p>
-    {% endfor %}
+<div class="card mb-3">
+  <div class="card-body">
+    <h5>{{ post.user.username }}</h5>
+    <p>{{ post.caption }}</p>
+    <p>{{ post.content }}</p>
+    {% if post.image %}
+      <img src="{{ post.image.url }}" class="img-fluid rounded" style="max-height: 400px;">
+    {% endif %}
+    <small class="text-muted">{{ post.created_at }}</small>
+  </div>
+</div>
+{% endfor %}
   </div>
 {% endblock %}
