@@ -27,20 +27,23 @@ class Profile(models.Model):
 from django.db import models
 from django.contrib.auth.models import User
 
+
+
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
-    caption = models.TextField(blank=True)
+    caption = models.TextField(blank=True, null=True)
+    content = models.TextField(blank=True, null=True)  # if you need text
     image = models.ImageField(upload_to="posts/", blank=True, null=True)
+    likes = models.ManyToManyField(User, related_name="liked_posts", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Many-to-many for likes
-    likes = models.ManyToManyField(User, related_name="liked_posts", blank=True)
-
-    def total_likes(self):
+    def like_count(self):
         return self.likes.count()
 
     def __str__(self):
         return f"{self.user.username} - {self.caption[:20]}"
+
+
 
 
 class Comment(models.Model):

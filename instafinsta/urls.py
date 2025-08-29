@@ -1,6 +1,8 @@
 from django.urls import path
 from instafinsta import views
+from network import settings
 from .views import *
+
 urlpatterns = [
     path('', home, name='home'),
     path('signup/', signup, name='signup'),
