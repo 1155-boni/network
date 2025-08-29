@@ -44,8 +44,19 @@
       <div><strong>{{ following_count }}</strong> Following</div>
     </div>
 
+    {% if not is_owner %}
+      <form action="{% url 'follow_toggle' profile.user.username %}" method="post">
+        {% csrf_token %}
+        {% if request.user in profile.followers.all %}
+          <button type="submit" class="btn btn-danger w-100">Unfollow</button>
+        {% else %}
+          <button type="submit" class="btn btn-primary w-100">Follow</button>
+        {% endif %}
+      </form>
+    {% endif %}
+
     {% if is_owner %}
-      <a href="{% url 'edit_profile' %}" class="btn btn-primary w-100">Edit Profile</a>
+      <a href="{% url 'edit_profile' %}" class="btn btn-primary w-100 mt-2">Edit Profile</a>
     {% endif %}
   </div>
 </div>
