@@ -85,14 +85,20 @@ def profile(request, username=None):
 # ---------------------------
 @login_required
 def create_post(request):
-    if request.method == 'POST':
-        content = request.POST.get('content')
-        caption = request.POST.get('caption')
-        image = request.FILES.get('image')
-        Post.objects.create(user=request.user, content=content, caption=caption, image=image)
-        return redirect('feed')
-    return render(request, 'create_post.html')
+    if request.method == "POST":
+        caption = request.POST.get("caption")
+        content = request.POST.get("content")
+        image = request.FILES.get("image")
 
+        Post.objects.create(
+            user=request.user,
+            caption=caption,
+            content=content,
+            image=image
+        )
+        return redirect("feed")
+
+    return render(request, "create_post.html")
 
 @login_required
 def feed(request):
