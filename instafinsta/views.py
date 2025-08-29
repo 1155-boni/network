@@ -322,3 +322,29 @@ def follow_toggle(request, username):
         messages.success(request, f"You followed {target_user.username}.")
 
     return redirect("view_profile", username=username)
+
+# views.py
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth.models import User
+from .models import Profile
+
+@login_required
+def follow_unfollow(request, username):
+    target_user = get_object_or_404(User, username=username)
+    target_profile = get_object_or_404(Profile, user=target_user)
+
+    if request.user == target_user:
+        messages.error(request, "You cannot follow yourself.")
+    else:
+        if request.user in target_profile.followers.all():
+            # Unfollow
+            target_profile.followers.remove(request.user)
+            messages.success(request, f"You unfollowed {target_user.username}")
+        else:
+            # Follow
+            target_profile.followers.add(request.user)
+            messages.success(request, f"You followed {target_user.username}")
+
+    return redirect("view_profile", username=username)
