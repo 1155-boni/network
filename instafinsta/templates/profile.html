@@ -7,7 +7,6 @@
 <div class="container mt-5" style="max-width:700px;">
   <div class="card shadow-lg p-4 text-center" style="border-radius:15px;">
 
-    <!-- Username -->
     <h2 class="mb-3">{{ profile.user.username }}'s Profile</h2>
 
     <!-- Profile Picture -->
@@ -26,14 +25,12 @@
     </div>
 
     {% if is_owner %}
-    <!-- Change Photo (only for owner) -->
     <form method="post" enctype="multipart/form-data" class="mb-3">
       {% csrf_token %}
       <input type="file" name="profile_pic" class="form-control mb-2" onchange="this.form.submit();">
     </form>
     {% endif %}
 
-    <!-- Profile Info -->
     <div class="text-start mt-3" style="line-height:1.8;">
       <p><strong>Email:</strong> {{ profile.user.email }}</p>
       <p><strong>First Name:</strong> {{ profile.user.first_name }}</p>
@@ -42,17 +39,14 @@
       <p><strong>Location:</strong> {{ profile.location|default:"Not set" }}</p>
     </div>
 
-    <!-- Followers / Following -->
     <div class="d-flex justify-content-around my-4">
       <div><strong>{{ followers_count }}</strong> Followers</div>
       <div><strong>{{ following_count }}</strong> Following</div>
     </div>
 
     {% if is_owner %}
-      <!-- Edit Button for Owner -->
       <a href="{% url 'edit_profile' %}" class="btn btn-primary w-100">Edit Profile</a>
     {% endif %}
-
   </div>
 </div>
 {% endblock %}

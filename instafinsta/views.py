@@ -280,9 +280,49 @@ def post_detail(request, post_id):
 def view_profile(request, user_id):
     user_profile = get_object_or_404(User, id=user_id)
     profile = get_object_or_404(Profile, user=user_profile)
-    posts = Post.objects.filter(user=user_profile).order_by("-created_at")  # if you have posts
+
+    # Check if the logged-in user is the owner
+    is_owner = (request.user == user_profile)
+
+    # Followers and following counts using Profile model methods
+    followers_count = profile.followers_count()
+    following_count = profile.following_count()
+
+    # Handle profile picture upload if it's the owner
+    if request.method == "POST" and is_owner:
+        if "profile_pic" in request.FILES:
+            profile.profile_pic = request.FILES["profile_pic"]
+            profile.save()
+            messages.success(request, "Profile picture updated successfully!")
+            return redirect("view_profile", user_id=user_id)
+
+    # Fetch posts if you have them
+    posts = Post.objects.filter(user=user_profile).order_by("-created_at")
+
     return render(request, "view_profile.html", {
         "user_profile": user_profile,
         "profile": profile,
         "posts": posts,
+        "is_owner": is_owner,
+        "followers_count": followers_count,
+        "following_count": following_count,
     })
+
+@login_required
+def follow_toggle(request, user_id):
+    """Toggle follow/unfollow between logged in user and target user"""
+    target_user = get_object_or_404(User, id=user_id)
+    target_profile = get_object_or_404(Profile, user=target_user)
+
+    if request.user == target_user:
+        messages.warning(request, "You cannot follow yourself.")
+        return redirect("view_profile", user_id=user_id)
+
+    if request.user in target_profile.followers.all():
+        target_profile.followers.remove(request.user)
+        messages.success(request, f"You unfollowed {target_user.username}.")
+    else:
+        target_profile.followers.add(request.user)
+        messages.success(request, f"You followed {target_user.username}.")
+
+    return redirect("view_profile", user_id=user_id)
