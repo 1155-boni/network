@@ -26,15 +26,14 @@ class Profile(models.Model):
         return self.user.username
 
 class Post(models.Model):
-    id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField(blank=True)
+    caption = models.CharField(max_length=255, blank=True, null=True)
+    content = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to="posts/", blank=True, null=True)  # Now stored in Cloudinary
     created_at = models.DateTimeField(auto_now_add=True)
-    caption = models.CharField(max_length=255, blank=True)
-    image = models.ImageField(upload_to='posts/', blank=True, null=True)
 
     def __str__(self):
-        return f"Post {self.id} by {self.user.username}"
+        return self.caption or f"Post by {self.user.username}"
 
 
 class Message(models.Model):
