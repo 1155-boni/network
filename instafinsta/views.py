@@ -6,6 +6,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
+from requests import Response
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+
+from instafinsta.serializers import ProfileSerializer
 from .models import Profile, Post, Message
 from django.db.models import Q, Max
 from .forms import ProfileForm, MessageForm, UserForm, UserUpdateForm
@@ -347,3 +353,9 @@ def follow_unfollow(request, username):
             messages.success(request, f"You followed {target_user.username}")
 
     return redirect("view_profile", username=username)
+
+@api_view(['GET'])
+def profile_list(request):
+    profiles = Profile.objects.all()
+    serializer = ProfileSerializer(profiles, many=True)
+    return Response(serializer.data)
