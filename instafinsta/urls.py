@@ -17,6 +17,6 @@ urlpatterns = [
     path("profile/", views.profile, name="my_profile"),  
     path("profile/<str:username>/", views.profile, name="profile"),
     path("explore/", views.explore, name="explore"),
-
-
+    path("post/<int:post_id>/", views.post_detail, name="post_detail"),
+path('profile/<str:username>/', views.view_profile, name='view_profile'),
 ]

@@ -1,5 +1,5 @@
 from pyexpat.errors import messages
-from random import random
+import random
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
@@ -231,14 +231,19 @@ def messages_list(request):
 @login_required
 def explore(request):
     query = request.GET.get("q", "")
-    users = []
 
     if query:
-        users = User.objects.filter(Q(username__icontains=query))
+        users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)
+        posts = []
+    else:
+        users = []
+        posts = list(Post.objects.exclude(user=request.user))
+        random.shuffle(posts)  # ✅ works now
 
     return render(request, "explore.html", {
-        "query": query,
         "users": users,
+        "posts": posts,
+        "query": query,
     })
 
 @login_required
@@ -263,4 +268,21 @@ def explore(request):
         "users": users,
         "posts": posts,
         "query": query,
+    })
+
+
+@login_required
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    return render(request, "post_detail.html", {"post": post})
+
+@login_required
+def view_profile(request, user_id):
+    user_profile = get_object_or_404(User, id=user_id)
+    profile = get_object_or_404(Profile, user=user_profile)
+    posts = Post.objects.filter(user=user_profile).order_by("-created_at")  # if you have posts
+    return render(request, "view_profile.html", {
+        "user_profile": user_profile,
+        "profile": profile,
+        "posts": posts,
     })

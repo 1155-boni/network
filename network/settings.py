@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'api',
     'rest_framework',
     'cloudinary',
-    'widget_tweaks'
+    'widget_tweaks',
+    'cloudinary_storage',
 ]
 
 
