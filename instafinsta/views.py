@@ -56,30 +56,26 @@ def logout_view(request):
 # ---------------------------
 @login_required
 def profile(request, username=None):
-    if username:  # If we pass ?username=someone
+    if username:
         user = get_object_or_404(User, username=username)
     else:
         user = request.user
 
     profile = get_object_or_404(Profile, user=user)
+    posts = Post.objects.filter(user=user).order_by("-created_at")
 
-    # Profile picture update (only if it's your own)
-    if request.method == 'POST' and user == request.user:
-        if 'profile_pic' in request.FILES:
-            profile.profile_pic = request.FILES['profile_pic']
-            profile.save()
-            return redirect('profile', username=request.user.username)
-
-    # Followers / Following counts
+    is_owner = (user == request.user)
     followers_count = profile.followers.count()
-    following_count = Profile.objects.filter(followers=user).count()
+    following_count = profile.user.following.count()
 
-    return render(request, 'profile.html', {
-        'profile': profile,
-        'is_owner': (user == request.user),
-        'followers_count': followers_count,
-        'following_count': following_count,
+    return render(request, "profile.html", {
+        "profile": profile,
+        "posts": posts,
+        "is_owner": is_owner,
+        "followers_count": followers_count,
+        "following_count": following_count,
     })
+
 # ---------------------------
 # Posts
 # ---------------------------
