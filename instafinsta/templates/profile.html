@@ -60,4 +60,36 @@
     {% endif %}
   </div>
 </div>
+
+<!-- ✅ User Posts Section -->
+<div class="container mt-4" style="max-width:700px;">
+  <h3 class="mb-3">Posts</h3>
+
+  {% for post in posts %}
+    <div class="card mb-3 shadow-sm">
+      <div class="card-body">
+        <p>{{ post.caption }}</p>
+        <p>{{ post.content }}</p>
+
+        {% if post.image %}
+          <img src="{{ post.image.url }}" class="img-fluid rounded mb-2" style="max-height:400px;">
+        {% endif %}
+
+        <small class="text-muted">{{ post.created_at }}</small>
+
+        {% if is_owner %}
+          <form method="post" action="{% url 'delete_post' post.id %}" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm"
+              onclick="return confirm('Are you sure you want to delete this post?')">
+              Delete
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted">No posts yet.</p>
+  {% endfor %}
+</div>
 {% endblock %}
