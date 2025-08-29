@@ -9,8 +9,8 @@ from django.http import HttpResponseForbidden
 from requests import Response
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
-
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import api_view, parser_classes
 from instafinsta.serializers import ProfileSerializer
 from .models import Profile, Post, Message
 from django.db.models import Q, Max
@@ -359,3 +359,21 @@ def profile_list(request):
     profiles = Profile.objects.all()
     serializer = ProfileSerializer(profiles, many=True)
     return Response(serializer.data)
+
+@api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
+def upload_profile_image(request):
+    user = request.user  # assumes JWT/Auth in place
+    profile = Profile.objects.get(user=user)
+
+    image = request.FILES.get('image')
+    if not image:
+        return Response({"error": "No image provided"}, status=400)
+
+    profile.image = image
+    profile.save()
+
+    return Response({
+        "message": "Image uploaded successfully",
+        "image_url": profile.image.url
+    })
