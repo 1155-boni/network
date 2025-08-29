@@ -18,6 +18,8 @@
         <h3>{{ user_profile.username }}</h3>
         <p>{{ profile.bio|default:"No bio yet." }}</p>
         <p><strong>Location:</strong> {{ profile.location|default:"Not set" }}</p>
+        <p><strong>Followers:</strong> {{ profile.followers_count }}</p>
+        <p><strong>Following:</strong> {{ profile.following_count }}</p>
       </div>
     </div>
   </div>
