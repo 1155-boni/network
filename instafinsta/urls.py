@@ -22,4 +22,5 @@ urlpatterns = [
     path("profile/<str:username>/follow/", views.follow_toggle, name="follow_toggle"),
     path("follow/<str:username>/", views.follow_unfollow, name="follow_unfollow"),
     path('api/profiles/', views.profile_list, name="profile-list"),
+    path("post/<int:post_id>/delete/", views.delete_post, name="delete_post"),
 ]
