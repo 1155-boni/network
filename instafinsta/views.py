@@ -383,3 +383,10 @@ def upload_profile_image(request):
         "message": "Image uploaded successfully",
         "image_url": profile.image.url
     })
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id, user=request.user)
+    post.delete()
+    messages.success(request, "Post deleted successfully.")
+    return redirect("feed")  # redirect back to feed
