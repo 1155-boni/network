@@ -14,8 +14,9 @@
     <p>{{ post.caption }}</p>
     <p>{{ post.content }}</p>
     {% if post.image %}
-      <img src="{{ post.image.url }}" class="img-fluid rounded" style="max-height: 400px;">
-    {% endif %}
+  <img src="{{ post.image.url }}" class="img-fluid rounded" style="max-height: 400px;">
+{% endif %}
+
     <small class="text-muted">{{ post.created_at }}</small>
   </div>
 </div>

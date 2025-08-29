@@ -26,11 +26,11 @@ class Profile(models.Model):
 
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    caption = models.CharField(max_length=255, blank=True, null=True)
-    content = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to="posts/", blank=True, null=True)  # Now stored in Cloudinary
+    caption = models.TextField(blank=True)
+    content = models.TextField(blank=True)
+    image = CloudinaryField("image", blank=True, null=True)  # ✅ Cloudinary
     created_at = models.DateTimeField(auto_now_add=True)
-
+    updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.caption or f"Post by {self.user.username}"
 
