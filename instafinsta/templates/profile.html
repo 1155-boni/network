@@ -7,6 +7,7 @@
 <div class="container mt-5" style="max-width:700px;">
   <div class="card shadow-lg p-4 text-center" style="border-radius:15px;">
 
+    <!-- Username -->
     <h2 class="mb-3">{{ profile.user.username }}'s Profile</h2>
 
     <!-- Profile Picture -->
@@ -24,7 +25,7 @@
       {% endif %}
     </div>
 
-    <!-- Upload new pic -->
+    <!-- Upload new profile picture -->
     {% if is_owner %}
     <form method="post" enctype="multipart/form-data" class="mb-3">
       {% csrf_token %}
@@ -41,6 +42,7 @@
       <p><strong>Location:</strong> {{ profile.location|default:"Not set" }}</p>
     </div>
 
+    <!-- Followers / Following -->
     <div class="d-flex justify-content-around my-4">
       <div><strong>{{ followers_count }}</strong> Followers</div>
       <div><strong>{{ following_count }}</strong> Following</div>
@@ -58,6 +60,7 @@
       </form>
     {% endif %}
 
+    <!-- Edit Profile Button -->
     {% if is_owner %}
       <a href="{% url 'edit_profile' %}" class="btn btn-primary w-100 mt-2">Edit Profile</a>
     {% endif %}
@@ -69,17 +72,37 @@
     {% for post in posts %}
       <div class="card mb-3 shadow-sm">
         <div class="card-body">
-          <p>{{ post.caption }}</p>
+          <h5>{{ post.caption }}</h5>
+          <p class="text-muted">{{ post.content }}</p>
 
           {% if post.image %}
-            <img src="{{ post.image.url }}" class="img-fluid rounded mb-2" alt="Post image">
+            <a href="{{ post.image.url }}" target="_blank">
+              <img src="{{ post.image.url }}" class="img-fluid rounded mb-2" alt="Post image">
+            </a>
           {% endif %}
 
           <p><strong>{{ post.like_count }}</strong> Likes</p>
 
+          <!-- Like/Unlike -->
+          <form method="post" action="{% url 'toggle_like' post.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-primary">
+              {% if user in post.likes.all %}
+                Unlike
+              {% else %}
+                Like
+              {% endif %}
+            </button>
+          </form>
+
+          <!-- Timestamp -->
+          <small class="text-muted d-block mt-2">
+            Posted on {{ post.created_at|date:"M d, Y H:i" }}
+          </small>
+
           <!-- Delete button (only for owner) -->
           {% if is_owner %}
-            <form action="{% url 'delete_post' post.id %}" method="post">
+            <form action="{% url 'delete_post' post.id %}" method="post" class="mt-2">
               {% csrf_token %}
               <button type="submit" class="btn btn-danger btn-sm">Delete</button>
             </form>

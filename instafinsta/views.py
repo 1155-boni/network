@@ -35,22 +35,28 @@ def signup(request):
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
-
 def login_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('feed')
+
+            next_url = request.POST.get("next") or request.GET.get("next")
+            if next_url:
+                return redirect(next_url)
+            return redirect("feed")  # fallback
     else:
         form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
 
+    return render(request, "login.html", {
+        "form": form,
+        "next": request.GET.get("next", "")
+    })
 
 def logout_view(request):
-    logout(request)
-    return redirect('login')
+    logout(request)  # logs out the user
+    return redirect('login')  # redirect to login page (change if needed)
 
 # ---------------------------
 # Profile View
@@ -63,11 +69,11 @@ def profile(request, username=None):
         user = request.user
 
     profile = get_object_or_404(Profile, user=user)
-    posts = Post.objects.filter(user=user).order_by("-created_at")
+    posts = Post.objects.filter(author=user).order_by("-created_at")  # fixed here
 
     is_owner = (user == request.user)
     followers_count = profile.followers.count()
-    following_count = profile.user.following.count()
+    following_count = profile.following.count()  # fixed here too
 
     return render(request, "profile.html", {
         "profile": profile,
@@ -76,6 +82,7 @@ def profile(request, username=None):
         "followers_count": followers_count,
         "following_count": following_count,
     })
+
 
 # ---------------------------
 # Posts
@@ -246,8 +253,8 @@ def explore(request):
         posts = []
     else:
         users = []
-        posts = list(Post.objects.exclude(user=request.user))
-        random.shuffle(posts)  # ✅ works now
+        posts = list(Post.objects.exclude(author=request.user))  # 🔥 FIXED
+        random.shuffle(posts)
 
     return render(request, "explore.html", {
         "users": users,
@@ -270,7 +277,7 @@ def explore(request):
     else:
         users = []
         # Get random posts from other users
-        posts = list(Post.objects.exclude(user=request.user))
+        posts = list(Post.objects.exclude(author=request.user))
         random.shuffle(posts)
 
     return render(request, "explore.html", {

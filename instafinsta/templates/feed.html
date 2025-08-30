@@ -12,20 +12,25 @@
       <div class="card-body">
 
         <!-- Post Header -->
-        <h5 class="card-title">
-          <a href="{% url 'profile' post.user.username %}">
-            {{ post.user.username }}
-          </a>
-        </h5>
+        <div class="d-flex align-items-center mb-2">
+          <h5 class="card-title mb-0">
+            <a href="#" class="text-decoration-none">
+              {{ post.author.username }}
+            </a>
+          </h5>
+          <small class="text-muted ms-2">{{ post.created_at|date:"M d, Y H:i" }}</small>
+        </div>
 
         <!-- Post Caption -->
         {% if post.caption %}
-          <p class="card-text">{{ post.caption }}</p>
+          <p class="fw-bold mb-1">{{ post.caption }}</p>
         {% endif %}
 
         <!-- Post Image -->
         {% if post.image %}
-          <img src="{{ post.image.url }}" class="img-fluid rounded mb-2" alt="Post image">
+          <a href="{{ post.image.url }}" target="_blank">
+            <img src="{{ post.image.url }}" class="img-fluid rounded mb-2" alt="Post image">
+          </a>
         {% endif %}
 
         <!-- Like Button + Count -->
@@ -46,7 +51,7 @@
         <!-- Comments -->
         <div class="mt-2">
           {% for comment in post.comments.all %}
-            <p><strong>{{ comment.user.username }}:</strong> {{ comment.content }}</p>
+            <p class="mb-1"><strong>{{ comment.user.username }}:</strong> {{ comment.content }}</p>
           {% empty %}
             <p class="text-muted">No comments yet</p>
           {% endfor %}
@@ -62,7 +67,7 @@
       </div>
     </div>
   {% empty %}
-    <p>No posts yet.</p>
+    <p class="text-center text-muted">No posts yet.</p>
   {% endfor %}
 </div>
 {% endblock %}

@@ -4,7 +4,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils import timezone
 
 
 class Socialnetwork(models.Model):
@@ -13,37 +12,35 @@ class Socialnetwork(models.Model):
     def __str__(self):
         return f"Socialnetwork {self.id}"
 
+from django.contrib.auth.models import User
+from django.db import models
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(blank=True, null=True, default="")  # ✅ updated
-    image = models.ImageField(upload_to="profiles/", blank=True, null=True)
-    # ✅ followers field (many-to-many to User)
-    followers = models.ManyToManyField(User, related_name="following", blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    bio = models.TextField(blank=True)
+    avatar = models.ImageField(upload_to="avatars/", default="avatars/default.png")
+
+    # Followers & Following
+    followers = models.ManyToManyField(User, related_name="following_profiles", blank=True)
+    following = models.ManyToManyField(User, related_name="followers_profiles", blank=True)
 
     def __str__(self):
         return self.user.username
 
-from django.db import models
-from django.contrib.auth.models import User
-
-
 
 class Post(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
-    caption = models.TextField(blank=True, null=True)
-    content = models.TextField(blank=True, null=True)  # if you need text
-    image = models.ImageField(upload_to="posts/", blank=True, null=True)
-    likes = models.ManyToManyField(User, related_name="liked_posts", blank=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    image = CloudinaryField("image")  # ✅ Cloudinary for posts
+    caption = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    likes = models.ManyToManyField(User, related_name="liked_posts", blank=True)
 
     def like_count(self):
         return self.likes.count()
 
     def __str__(self):
-        return f"{self.user.username} - {self.caption[:20]}"
-
-
+        return f"Post by {self.author.username} - {self.caption[:20]}"
 
 
 class Comment(models.Model):
@@ -53,8 +50,7 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} on {self.post.id}"
-
+        return f"{self.user.username} on Post {self.post.id}"
 
 
 class Message(models.Model):
@@ -62,11 +58,13 @@ class Message(models.Model):
     receiver = models.ForeignKey(User, related_name="received_messages", on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False)   # 👈 Add this
+    is_read = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.sender} -> {self.receiver}: {self.content[:20]}"
-# Automatically create a profile when a new user registers
+
+
+# ✅ Automatically create a profile when a new user registers
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
