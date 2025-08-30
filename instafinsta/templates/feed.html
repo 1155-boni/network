@@ -14,7 +14,7 @@
         <!-- Post Header -->
         <div class="d-flex align-items-center mb-2">
           <h5 class="card-title mb-0">
-            <a href="#" class="text-decoration-none">
+            <a href="{% url 'view_profile' post.author.username %}" class="text-decoration-none">
               {{ post.author.username }}
             </a>
           </h5>
@@ -38,7 +38,7 @@
           <form action="{% url 'toggle_like' post.id %}" method="post" class="me-2">
             {% csrf_token %}
             <button type="submit" class="btn btn-outline-primary btn-sm">
-              {% if user in post.likes.all %}
+              {% if request.user in post.likes.all %}
                 Unlike
               {% else %}
                 Like

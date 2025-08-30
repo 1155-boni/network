@@ -5,37 +5,30 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-
 class Socialnetwork(models.Model):
     id = models.AutoField(primary_key=True)
 
     def __str__(self):
         return f"Socialnetwork {self.id}"
 
-from django.contrib.auth.models import User
-from django.db import models
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     bio = models.TextField(blank=True)
-    avatar = models.ImageField(upload_to="avatars/", default="avatars/default.png")
-
-    # Followers & Following
+    avatar = CloudinaryField('avatar', blank=True, null=True)  # ✅ Cloudinary for profile pictures
     followers = models.ManyToManyField(User, related_name="following_profiles", blank=True)
     following = models.ManyToManyField(User, related_name="followers_profiles", blank=True)
 
     def __str__(self):
         return self.user.username
-
-
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = CloudinaryField("image")  # ✅ Cloudinary for posts
+    image = CloudinaryField('image', blank=True, null=True)  # ✅ Cloudinary for post images
     caption = models.TextField(blank=True)
+    content = models.TextField(blank=True)   # ✅ Added content field
     created_at = models.DateTimeField(auto_now_add=True)
-
     likes = models.ManyToManyField(User, related_name="liked_posts", blank=True)
 
+    @property
     def like_count(self):
         return self.likes.count()
 
@@ -52,7 +45,6 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.user.username} on Post {self.post.id}"
 
-
 class Message(models.Model):
     sender = models.ForeignKey(User, related_name="sent_messages", on_delete=models.CASCADE)
     receiver = models.ForeignKey(User, related_name="received_messages", on_delete=models.CASCADE)
@@ -62,7 +54,6 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender} -> {self.receiver}: {self.content[:20]}"
-
 
 # ✅ Automatically create a profile when a new user registers
 @receiver(post_save, sender=User)

@@ -1,26 +1,20 @@
-from pyexpat.errors import messages
 import random
-from xml.etree.ElementTree import Comment
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
-from requests import Response
+from django.contrib import messages
+
+from instafinsta.serializers import ProfileSerializer
+from .models import Profile, Post, Comment, Message
+from .forms import ProfileForm, MessageForm, UserForm, UserUpdateForm
+from django.db.models import Q, Max, Count
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.decorators import api_view, parser_classes
-from instafinsta.serializers import ProfileSerializer
-from .models import Profile, Post, Message
-from django.db.models import Q, Max
-from .forms import ProfileForm, MessageForm, UserForm, UserUpdateForm
-from django.db.models import Count
-
-
-
-
+from rest_framework.decorators import parser_classes
 # ---------------------------
 # Auth Views
 # ---------------------------
@@ -29,7 +23,7 @@ def signup(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # auto login after signup
+            login(request, user)  # Auto login after signup
             return redirect('feed')
     else:
         form = UserCreationForm()
@@ -41,25 +35,21 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-
             next_url = request.POST.get("next") or request.GET.get("next")
-            if next_url:
-                return redirect(next_url)
-            return redirect("feed")  # fallback
+            return redirect(next_url) if next_url else redirect("feed")  # Fallback to feed
     else:
         form = AuthenticationForm()
-
     return render(request, "login.html", {
         "form": form,
         "next": request.GET.get("next", "")
     })
 
 def logout_view(request):
-    logout(request)  # logs out the user
-    return redirect('login')  # redirect to login page (change if needed)
+    logout(request)
+    return redirect('login')
 
 # ---------------------------
-# Profile View
+# Profile Views
 # ---------------------------
 @login_required
 def profile(request, username=None):
@@ -69,11 +59,10 @@ def profile(request, username=None):
         user = request.user
 
     profile = get_object_or_404(Profile, user=user)
-    posts = Post.objects.filter(author=user).order_by("-created_at")  # fixed here
-
+    posts = Post.objects.filter(author=user).order_by("-created_at")
     is_owner = (user == request.user)
     followers_count = profile.followers.count()
-    following_count = profile.following.count()  # fixed here too
+    following_count = profile.following.count()
 
     return render(request, "profile.html", {
         "profile": profile,
@@ -82,119 +71,6 @@ def profile(request, username=None):
         "followers_count": followers_count,
         "following_count": following_count,
     })
-
-
-# ---------------------------
-# Posts
-# ---------------------------
-@login_required
-def create_post(request):
-    if request.method == "POST":
-        caption = request.POST.get("caption")
-        content = request.POST.get("content")
-        image = request.FILES.get("image")
-
-        Post.objects.create(
-            user=request.user,
-            caption=caption,
-            content=content,
-            image=image
-        )
-        return redirect("feed")
-
-    return render(request, "create_post.html")
-
-@login_required
-def feed(request):
-    posts = Post.objects.all().order_by('-created_at')
-    return render(request, 'feed.html', {'posts': posts})
-
-# ---------------------------
-# Messaging
-# ---------------------------
-
-@login_required
-def inbox(request):
-    user = request.user
-
-    # Get all threads (sender or receiver = current user)
-    threads = (
-        Message.objects.filter(Q(sender=user) | Q(receiver=user))
-        .values("sender", "receiver")
-        .annotate(last_msg=Max("timestamp"))
-        .order_by("-last_msg")
-    )
-
-    conversations = []
-    for t in threads:
-        other_id = t["receiver"] if t["sender"] == user.id else t["sender"]
-
-        # Get the actual user object
-        other_user = User.objects.get(id=other_id)
-
-        # Count unread messages from this user
-        unread_count = Message.objects.filter(
-            sender_id=other_id, receiver=user, is_read=False
-        ).count()
-
-        # Get latest message between the two
-        last_message = (
-            Message.objects.filter(
-                Q(sender_id=other_id, receiver=user) | 
-                Q(sender=user, receiver_id=other_id)
-            )
-            .order_by("-timestamp")
-            .first()
-        )
-
-        conversations.append({
-            "user": other_user,            # pass full user object
-            "last_message": last_message,
-            "unread_count": unread_count,
-        })
-
-    return render(request, "messages/inbox.html", {"conversations": conversations})
-@login_required
-def message_thread(request, user_id):
-    receiver = get_object_or_404(User, id=user_id)
-    messages = Message.objects.filter(
-        sender__in=[request.user, receiver],
-        receiver__in=[request.user, receiver]
-    ).order_by("timestamp")
-
-    # Mark unread messages as read
-    Message.objects.filter(sender=receiver, receiver=request.user, is_read=False).update(is_read=True)
-
-    if request.method == "POST":
-        form = MessageForm(request.POST)
-        if form.is_valid():
-            msg = form.save(commit=False)
-            msg.sender = request.user
-            msg.receiver = receiver
-            msg.save()
-            return redirect("messages_with", user_id=receiver.id)
-    else:
-        form = MessageForm()
-
-    users = User.objects.exclude(id=request.user.id)
-    return render(request, "messages/thread.html", {
-        "receiver": receiver,
-        "messages": messages,
-        "form": form,
-        "users": users,
-    })
-
-
-# ---------------------------
-# Home (redirect to feed or login)
-# ---------------------------
-def home(request):
-    if request.user.is_authenticated:
-        return redirect('feed')
-    return redirect('login')
-
-from django.contrib import messages
-from django.shortcuts import render, redirect
 
 @login_required
 def edit_profile(request):
@@ -221,18 +97,134 @@ def edit_profile(request):
         {"user_form": user_form, "profile_form": profile_form},
     )
 
-
-
 @login_required
 def remove_profile_pic(request):
     profile = request.user.profile
-    if profile.profile_pic:  
-        profile.profile_pic.delete(save=True)  # deletes file + clears DB field
+    if profile.avatar:  # Use 'avatar' to match CloudinaryField
+        profile.avatar.delete(save=True)  # Deletes file from Cloudinary and clears DB field
     return redirect('profile')
+
+# ---------------------------
+# Posts Views
+# ---------------------------
+@login_required
+def create_post(request):
+    if request.method == "POST":
+        caption = request.POST.get("caption")
+        content = request.POST.get("content")
+        image = request.FILES.get("image")
+
+        Post.objects.create(
+            author=request.user,  # Changed from 'user' to 'author' to match model
+            caption=caption,
+            content=content,
+            image=image
+        )
+        return redirect("feed")
+
+    return render(request, "create_post.html")
+
+@login_required
+def feed(request):
+    posts = Post.objects.all().order_by('-created_at')
+    return render(request, 'feed.html', {'posts': posts})
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id, author=request.user)
+    post.delete()
+    messages.success(request, "Post deleted successfully.")
+    return redirect("feed")
+
+@login_required
+def toggle_like(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user in post.likes.all():
+        post.likes.remove(request.user)  # Unlike
+    else:
+        post.likes.add(request.user)  # Like
+    return redirect(request.META.get("HTTP_REFERER", "feed"))
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == "POST":
+        content = request.POST.get("content")
+        if content.strip():
+            Comment.objects.create(post=post, user=request.user, content=content)
+    return redirect(request.META.get("HTTP_REFERER", "feed"))
+
+@login_required
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    return render(request, "post_detail.html", {"post": post})
+
+# ---------------------------
+# Messaging Views
+# ---------------------------
+@login_required
+def inbox(request):
+    user = request.user
+    threads = (
+        Message.objects.filter(Q(sender=user) | Q(receiver=user))
+        .values("sender", "receiver")
+        .annotate(last_msg=Max("timestamp"))
+        .order_by("-last_msg")
+    )
+
+    conversations = []
+    for t in threads:
+        other_id = t["receiver"] if t["sender"] == user.id else t["sender"]
+        other_user = User.objects.get(id=other_id)
+        unread_count = Message.objects.filter(
+            sender_id=other_id, receiver=user, is_read=False
+        ).count()
+        last_message = (
+            Message.objects.filter(
+                Q(sender_id=other_id, receiver=user) | Q(sender=user, receiver_id=other_id)
+            )
+            .order_by("-timestamp")
+            .first()
+        )
+        conversations.append({
+            "user": other_user,
+            "last_message": last_message,
+            "unread_count": unread_count,
+        })
+
+    return render(request, "messages/inbox.html", {"conversations": conversations})
+
+@login_required
+def message_thread(request, user_id):
+    receiver = get_object_or_404(User, id=user_id)
+    messages = Message.objects.filter(
+        sender__in=[request.user, receiver],
+        receiver__in=[request.user, receiver]
+    ).order_by("timestamp")
+
+    # Mark unread messages as read
+    Message.objects.filter(sender=receiver, receiver=request.user, is_read=False).update(is_read=True)
+
+    if request.method == "POST":
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            msg = form.save(commit=False)
+            msg.sender = request.user
+            msg.receiver = receiver
+            msg.save()
+            return redirect("message_thread", user_id=receiver.id)
+    else:
+        form = MessageForm()
+
+    return render(request, "messages/thread.html", {
+        "receiver": receiver,
+        "messages": messages,
+        "form": form,
+    })
 
 def messages_with(request, user_id):
     other_user = get_object_or_404(User, id=user_id)
-    return render(request, "messages/thread.html", {"other_user": other_user})
+    return render(request, "messages/thread.html", {"receiver": other_user})  # Changed to 'receiver' for consistency
 
 @login_required
 def messages_list(request):
@@ -244,6 +236,9 @@ def messages_list(request):
     )
     return render(request, "messages/inbox.html", {"users": users})
 
+# ---------------------------
+# Explore View
+# ---------------------------
 @login_required
 def explore(request):
     query = request.GET.get("q", "")
@@ -253,30 +248,6 @@ def explore(request):
         posts = []
     else:
         users = []
-        posts = list(Post.objects.exclude(author=request.user))  # 🔥 FIXED
-        random.shuffle(posts)
-
-    return render(request, "explore.html", {
-        "users": users,
-        "posts": posts,
-        "query": query,
-    })
-
-@login_required
-def explore(request):
-    query = request.GET.get("q", "")
-    users = User.objects.filter(username__icontains=query) if query else []
-    return render(request, "explore.html", {"users": users, "query": query})@login_required
-def explore(request):
-    query = request.GET.get("q", "")
-
-    # If searching, show matching users
-    if query:
-        users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)
-        posts = []
-    else:
-        users = []
-        # Get random posts from other users
         posts = list(Post.objects.exclude(author=request.user))
         random.shuffle(posts)
 
@@ -286,29 +257,24 @@ def explore(request):
         "query": query,
     })
 
-
-@login_required
-def post_detail(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    return render(request, "post_detail.html", {"post": post})
+# ---------------------------
+# View Profile
+# ---------------------------
 @login_required
 def view_profile(request, username):
     user_profile = get_object_or_404(User, username=username)
     profile = get_object_or_404(Profile, user=user_profile)
-
     is_owner = (request.user == user_profile)
-
-    followers_count = profile.followers_count()
-    following_count = profile.following_count()
+    followers_count = profile.followers.count()
+    following_count = profile.following.count()
+    posts = Post.objects.filter(author=user_profile).order_by("-created_at")
 
     if request.method == "POST" and is_owner:
-        if "profile_pic" in request.FILES:
-            profile.profile_pic = request.FILES["profile_pic"]
+        if "profile_pic" in request.FILES:  # Legacy field name, adjust if needed
+            profile.avatar = request.FILES["profile_pic"]  # Use 'avatar' to match CloudinaryField
             profile.save()
             messages.success(request, "Profile picture updated successfully!")
             return redirect("view_profile", username=username)
-
-    posts = Post.objects.filter(user=user_profile).order_by("-created_at")
 
     return render(request, "view_profile.html", {
         "user_profile": user_profile,
@@ -319,9 +285,11 @@ def view_profile(request, username):
         "following_count": following_count,
     })
 
+# ---------------------------
+# Follow/Unfollow Views
+# ---------------------------
 @login_required
 def follow_toggle(request, username):
-    """Toggle follow/unfollow between logged in user and target user"""
     target_user = get_object_or_404(User, username=username)
     target_profile = get_object_or_404(Profile, user=target_user)
 
@@ -338,13 +306,6 @@ def follow_toggle(request, username):
 
     return redirect("view_profile", username=username)
 
-# views.py
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.contrib.auth.models import User
-from .models import Profile
-
 @login_required
 def follow_unfollow(request, username):
     target_user = get_object_or_404(User, username=username)
@@ -354,16 +315,17 @@ def follow_unfollow(request, username):
         messages.error(request, "You cannot follow yourself.")
     else:
         if request.user in target_profile.followers.all():
-            # Unfollow
             target_profile.followers.remove(request.user)
             messages.success(request, f"You unfollowed {target_user.username}")
         else:
-            # Follow
             target_profile.followers.add(request.user)
             messages.success(request, f"You followed {target_user.username}")
 
     return redirect("view_profile", username=username)
 
+# ---------------------------
+# API Views
+# ---------------------------
 @api_view(['GET'])
 def profile_list(request):
     profiles = Profile.objects.all()
@@ -373,44 +335,25 @@ def profile_list(request):
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
 def upload_profile_image(request):
-    user = request.user  # assumes JWT/Auth in place
-    profile = Profile.objects.get(user=user)
+    user = request.user
+    profile = get_object_or_404(Profile, user=user)
 
     image = request.FILES.get('image')
     if not image:
         return Response({"error": "No image provided"}, status=400)
 
-    profile.image = image
+    profile.avatar = image  # Use 'avatar' to match CloudinaryField
     profile.save()
 
     return Response({
         "message": "Image uploaded successfully",
-        "image_url": profile.image.url
+        "image_url": profile.avatar.url  # Use 'avatar.url' to match CloudinaryField
     })
 
-@login_required
-def delete_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id, user=request.user)
-    post.delete()
-    messages.success(request, "Post deleted successfully.")
-    return redirect("feed")  # redirect back to feed
-
-
-@login_required
-def toggle_like(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    if request.user in post.likes.all():
-        post.likes.remove(request.user)  # Unlike
-    else:
-        post.likes.add(request.user)  # Like
-    return redirect(request.META.get("HTTP_REFERER", "feed"))
-
-
-@login_required
-def add_comment(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    if request.method == "POST":
-        content = request.POST.get("content")
-        if content.strip():
-            Comment.objects.create(post=post, user=request.user, content=content)
-    return redirect(request.META.get("HTTP_REFERER", "feed"))
+# ---------------------------
+# Home View
+# ---------------------------
+def home(request):
+    if request.user.is_authenticated:
+        return redirect('feed')
+    return redirect('login')
