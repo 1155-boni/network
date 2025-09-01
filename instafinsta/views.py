@@ -357,3 +357,22 @@ def home(request):
     if request.user.is_authenticated:
         return redirect('feed')
     return redirect('login')
+
+
+
+@login_required
+def follow_user(request, username):
+    user_to_follow = get_object_or_404(User, username=username)
+    profile = user_to_follow.profile
+
+    profile.followers.add(request.user)
+    return redirect("view_profile", username=username)
+
+
+@login_required
+def unfollow_user(request, username):
+    user_to_unfollow = get_object_or_404(User, username=username)
+    profile = user_to_unfollow.profile
+
+    profile.followers.remove(request.user)
+    return redirect("view_profile", username=username)
