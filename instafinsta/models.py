@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
+
 
 class Socialnetwork(models.Model):
     id = models.AutoField(primary_key=True)
@@ -13,29 +15,21 @@ class Socialnetwork(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    bio = models.TextField(blank=True)
-    location = models.CharField(max_length=255, blank=True)
-
-    # Profile picture
-    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
-
-    # Followers & Following
-    followers = models.ManyToManyField(User, related_name="following_profiles", blank=True)
-    following = models.ManyToManyField(User, related_name="followers_profiles", blank=True)
-
+    bio = models.TextField(blank=True, null=True)
+    avatar = models.ImageField(upload_to="avatar", blank=True, null=True)
+    followers = models.ManyToManyField("self", symmetrical=False, related_name="following_set", blank=True)
+    following = models.ManyToManyField("self", symmetrical=False, related_name="followers_set", blank=True)
     def __str__(self):
         return self.user.username
-
     @property
-    def followers_count(self):
-        """Return the number of followers."""
-        return self.followers.count()
-
-    @property
-    def following_count(self):
-        """Return the number of accounts this user follows."""
-        return self.following.count()
-
+    def following(self):
+        # users this profile follows
+        return Profile.objects.filter(followers=self)
+    def is_following(self, profile):
+        return self.following.filter(id=profile.id).exists()
+    def is_followed_by(self, profile):
+        return self.followers.filter(id=profile.id).exists()
+    
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     image = CloudinaryField('image', blank=True, null=True)  # ✅ Cloudinary for post images
@@ -71,8 +65,8 @@ class Message(models.Model):
     def __str__(self):
         return f"{self.sender} -> {self.receiver}: {self.content[:20]}"
 
-# ✅ Automatically create a profile when a new user registers
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
+    instance.profile.save()

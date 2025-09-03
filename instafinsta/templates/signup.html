@@ -1,11 +1,44 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Sign Up{% endblock %}
 
 {% block content %}
-  <h2>Sign Up</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Sign Up</button>
-  </form>
-  <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+<div class="container d-flex justify-content-center align-items-center" style="min-height:80vh;">
+  <div class="col-12 col-sm-10 col-md-6 col-lg-5">
+    <div class="card shadow-lg border-0 rounded-4">
+      <div class="card-body p-4 p-md-5">
+
+        <!-- Title -->
+        <h2 class="text-center mb-4">Create an Account</h2>
+
+        <!-- Form -->
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% for error in field.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          <!-- Submit -->
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg rounded-3">Sign Up</button>
+          </div>
+        </form>
+
+        <!-- Login link -->
+        <p class="text-center mt-3 mb-0">
+          Already have an account?
+          <a href="{% url 'login' %}" class="text-decoration-none">Log in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

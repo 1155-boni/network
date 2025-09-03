@@ -4,32 +4,35 @@
 {% block title %}Feed{% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="max-width:700px;">
-  <h2 class="mb-4">Feed</h2>
+<div class="container mt-4" style="max-width:500px;">  <!-- reduced width -->
+  <h4 class="mb-4 text-center">Feed</h4>
 
   {% for post in posts %}
-    <div class="card mb-4 shadow-sm" style="border-radius:12px;">
-      <div class="card-body">
+    <div class="card mb-3 shadow-sm" style="border-radius:10px;">
+      <div class="card-body p-3">
 
         <!-- Post Header -->
         <div class="d-flex align-items-center mb-2">
-          <h5 class="card-title mb-0">
-            <a href="{% url 'view_profile' post.author.username %}" class="text-decoration-none">
+          <h6 class="mb-0">
+            <a href="{% url 'view_profile' post.author.username %}" class="fw-bold text-dark text-decoration-none">
               {{ post.author.username }}
             </a>
-          </h5>
+          </h6>
           <small class="text-muted ms-2">{{ post.created_at|date:"M d, Y H:i" }}</small>
         </div>
 
         <!-- Post Caption -->
         {% if post.caption %}
-          <p class="fw-bold mb-1">{{ post.caption }}</p>
+          <p class="mb-2 small">{{ post.caption }}</p>
         {% endif %}
 
-        <!-- Post Image -->
+        <!-- Post Image (smaller + rounded) -->
         {% if post.image %}
           <a href="{{ post.image.url }}" target="_blank">
-            <img src="{{ post.image.url }}" class="img-fluid rounded mb-2" alt="Post image">
+            <img src="{{ post.image.url }}" 
+                 class="img-fluid rounded mb-2" 
+                 alt="Post image" 
+                 style="max-height:280px; object-fit:cover; width:100%;">
           </a>
         {% endif %}
 
@@ -37,7 +40,7 @@
         <div class="d-flex align-items-center mb-2">
           <form action="{% url 'toggle_like' post.id %}" method="post" class="me-2">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-primary btn-sm">
+            <button type="submit" class="btn btn-outline-primary btn-sm py-0 px-2">
               {% if request.user in post.likes.all %}
                 Unlike
               {% else %}
@@ -45,22 +48,23 @@
               {% endif %}
             </button>
           </form>
-          <span><strong>{{ post.like_count }}</strong> Likes</span>
+          <small><strong>{{ post.like_count }}</strong> Likes</small>
         </div>
 
         <!-- Comments -->
-        <div class="mt-2">
+        <div class="mb-2">
           {% for comment in post.comments.all %}
-            <p class="mb-1"><strong>{{ comment.user.username }}:</strong> {{ comment.content }}</p>
+            <p class="mb-1 small"><strong>{{ comment.user.username }}:</strong> {{ comment.content }}</p>
           {% empty %}
-            <p class="text-muted">No comments yet</p>
+            <p class="text-muted small">No comments yet</p>
           {% endfor %}
         </div>
 
         <!-- Add Comment -->
-        <form action="{% url 'add_comment' post.id %}" method="post" class="d-flex mt-2">
+        <form action="{% url 'add_comment' post.id %}" method="post" class="d-flex">
           {% csrf_token %}
-          <input type="text" name="content" placeholder="Add a comment..." class="form-control me-2">
+          <input type="text" name="content" placeholder="Add a comment..." 
+                 class="form-control form-control-sm me-2">
           <button type="submit" class="btn btn-sm btn-primary">Post</button>
         </form>
 

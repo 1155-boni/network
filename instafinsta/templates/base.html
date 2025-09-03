@@ -9,19 +9,33 @@
   <title>{% block title %}InstaFinsta{% endblock %}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
   <style>
     body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: row;
       margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #fff;
     }
+
+    /* ✅ Fixed Sidebar */
     .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;       /* full height */
       width: 260px;
       background: #f8f9fa;
       border-right: 1px solid #ddd;
       padding: 1rem;
+      overflow-y: auto;    /* scroll inside if content is long */
+      z-index: 1000;
     }
+
+    .sidebar h4 {
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+    }
+
     .sidebar .nav-link {
       border-radius: 20px;
       padding: 10px 15px;
@@ -37,14 +51,42 @@
       background: #0d6efd;
       color: white !important;
     }
+
+    /* ✅ Main Content pushed to the right */
     .content {
-      flex: 1;
+      margin-left: 260px;
       padding: 2rem;
+      min-height: 100vh;
       background: #fff;
     }
+
+    /* ✅ Search box */
     .search-box input {
       border-radius: 20px;
       padding: 8px 15px;
+    }
+
+    /* ✅ Responsive: collapse sidebar on small screens */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+      }
+      .content {
+        margin-left: 200px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+      }
+      .content {
+        margin-left: 0;
+      }
     }
   </style>
 </head>
@@ -52,7 +94,7 @@
 
   <!-- Sidebar -->
   <div class="sidebar d-flex flex-column">
-    <h4 class="fw-bold mb-4">InstaFinsta</h4>
+    <h4 class="fw-bold">InstaFinsta</h4>
 
     {% if request.user.is_authenticated %}
       <!-- ✅ Search bar -->
@@ -83,7 +125,6 @@
           {% if global_unread_count > 0 %}
             <span class="badge bg-danger ms-1">{{ global_unread_count }}</span>
           {% endif %}
-        </a>
       {% else %}
         <a href="{% url 'login' %}" class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
           <i class="bi bi-box-arrow-in-right me-2"></i> Log In

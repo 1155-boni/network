@@ -2,29 +2,37 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="row">
-        <!-- Sidebar: List of users to message -->
+        <!-- Left column: list of conversations -->
         <div class="col-md-4">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     Conversations
                 </div>
-                <ul class="list-group list-group-flush">
-                    {% for user in users %}
-                        {% if user != request.user %}
-                        <li class="list-group-item">
-                            <a href="{% url 'messages_with' user.id %}">
-                                {{ user.username }}
+                <ul class="list-group">
+                    {% for convo in conversations %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{% url 'messages_with' convo.user.id %}">
+                                {{ convo.user.username }}
                             </a>
+                            <span>
+                                {% if convo.last_message %}
+                                    <small class="text-muted">{{ convo.last_message.content|truncatechars:30 }}</small>
+                                {% endif %}
+                                {% if convo.unread_count > 0 %}
+                                    <span class="badge bg-danger">{{ convo.unread_count }}</span>
+                                {% endif %}
+                            </span>
                         </li>
-                        {% endif %}
+                    {% empty %}
+                        <li class="list-group-item">No conversations yet.</li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
 
-        <!-- Chat window -->
+        <!-- Right column: chat window -->
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-header bg-light">
@@ -35,7 +43,7 @@
                     {% endif %}
                 </div>
 
-                <div class="card-body" style="height: 400px; overflow-y: scroll;">
+                <div class="card-body" style="height: 400px; overflow-y: auto;">
                     {% if messages %}
                         {% for message in messages %}
                             <div class="mb-3 {% if message.sender == request.user %}text-end{% endif %}">
@@ -59,10 +67,10 @@
 
                 {% if receiver %}
                 <div class="card-footer">
-                    <form method="post">
+                    <form method="post" action="{% url 'messages_with' receiver.id %}" class="d-flex">
                         {% csrf_token %}
-                        {{ form.content }}
-                        <button type="submit" class="btn btn-primary btn-sm mt-2">Send</button>
+                        <input type="text" name="content" class="form-control me-2" placeholder="Type your message..." required>
+                        <button type="submit" class="btn btn-primary">Send</button>
                     </form>
                 </div>
                 {% endif %}

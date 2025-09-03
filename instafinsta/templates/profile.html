@@ -67,6 +67,12 @@
                   </button>
                 </form>
               {% endif %}
+
+              <!-- ✅ Message button -->
+              <a href="{% url 'messages_with' profile.user.id %}" 
+                 class="btn btn-outline-primary px-4 rounded-pill ms-2">
+                <i class="bi bi-chat-dots"></i> Message
+              </a>
             {% endif %}
           </div>
         </div>

@@ -22,12 +22,12 @@ urlpatterns = [
     path("post/<int:post_id>/", views.post_detail, name="post_detail"),
     path("profile/<str:username>/", views.view_profile, name="view_profile"),
     path("profile/<str:username>/follow/", views.follow_toggle, name="follow_toggle"),
-    path("follow/<str:username>/", views.follow_unfollow, name="follow_unfollow"),
+    path("profile/<str:username>/", views.view_profile, name="view_profile"),
+    path("follow/<str:username>/", views.follow, name="follow"),
+    path("unfollow/<str:username>/", views.unfollow, name="unfollow"),
     path('api/profiles/', views.profile_list, name="profile-list"),
     path("post/<int:post_id>/delete/", views.delete_post, name="delete_post"),
     path("like/<int:post_id>/", views.toggle_like, name="toggle_like"),
     path("comment/<int:post_id>/", views.add_comment, name="add_comment"),
-    
-
 ]
 
