@@ -74,28 +74,22 @@ def profile(request, username=None):
 
 @login_required
 def edit_profile(request):
-    profile = request.user.profile
-
     if request.method == "POST":
         user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
-
+        profile_form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            messages.success(request, "Profile updated successfully.")
-            return redirect("profile")
-        else:
-            messages.error(request, "Please correct the errors below.")
+            messages.success(request, "Profile updated successfully!")
+            return redirect("profile", username=request.user.username)
     else:
         user_form = UserUpdateForm(instance=request.user)
-        profile_form = ProfileForm(instance=profile)
+        profile_form = ProfileForm(instance=request.user.profile)
 
-    return render(
-        request,
-        "edit_profile.html",
-        {"user_form": user_form, "profile_form": profile_form},
-    )
+    return render(request, "edit_profile.html", {
+        "user_form": user_form,
+        "profile_form": profile_form,
+    })
 
 @login_required
 def remove_profile_pic(request):
@@ -306,6 +300,26 @@ def follow_toggle(request, username):
 
     return redirect("view_profile", username=username)
 
+
+@login_required
+def unfollow_toggle(request, username):
+    target_user = get_object_or_404(User, username=username)
+    target_profile = get_object_or_404(Profile, user=target_user)
+
+    if request.user == target_user:
+        messages.warning(request, "You cannot unfollow yourself.")
+        return redirect("view_profile", username=username)
+    
+    if request.user in target_profile.followers.all():
+        target_profile.followers.remove(request.user)
+        messages.success(request, f"You unfollowed {target_user.username}.")
+    else:
+        target_profile.followers.add(request.user)
+        messages.success(request, f"You followed {target_user.username}.")
+
+        return redirect("view_profile", username=username)
+
+
 @login_required
 def follow_unfollow(request, username):
     target_user = get_object_or_404(User, username=username)
@@ -362,17 +376,29 @@ def home(request):
 
 @login_required
 def follow_user(request, username):
-    user_to_follow = get_object_or_404(User, username=username)
-    profile = user_to_follow.profile
+    target_user = get_object_or_404(User, username=username)
+    target_profile = target_user.profile
+    current_profile = request.user.profile
 
-    profile.followers.add(request.user)
+    # Add current user to target's followers
+    target_profile.followers.add(request.user)
+
+    # Add target user to current's following
+    current_profile.following.add(target_user)
+
     return redirect("view_profile", username=username)
 
 
 @login_required
 def unfollow_user(request, username):
-    user_to_unfollow = get_object_or_404(User, username=username)
-    profile = user_to_unfollow.profile
+    target_user = get_object_or_404(User, username=username)
+    target_profile = target_user.profile
+    current_profile = request.user.profile
 
-    profile.followers.remove(request.user)
+    # Remove current user from target's followers
+    target_profile.followers.remove(request.user)
+
+    # Remove target user from current's following
+    current_profile.following.remove(target_user)
+
     return redirect("view_profile", username=username)

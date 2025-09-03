@@ -88,6 +88,12 @@
                   <div class="card-body">
                     <p class="card-text">{{ post.caption }}</p>
                     <small class="text-muted">Posted on {{ post.created_at|date:"M d, Y" }}</small>
+                    
+                    <div class="mt-2">
+                      <span class="badge bg-primary rounded-pill">
+                        ❤️ {{ post.like_count }} Likes
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
