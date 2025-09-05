@@ -16,19 +16,24 @@ class Socialnetwork(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     bio = models.TextField(blank=True, null=True)
-    avatar = models.ImageField(upload_to="avatar", blank=True, null=True)
+    avatar = CloudinaryField('image', blank=True, null=True)
     followers = models.ManyToManyField("self", symmetrical=False, related_name="following_set", blank=True)
     following = models.ManyToManyField("self", symmetrical=False, related_name="followers_set", blank=True)
+
     def __str__(self):
         return self.user.username
+
     @property
-    def following(self):
+    def get_following(self):
         # users this profile follows
         return Profile.objects.filter(followers=self)
+
     def is_following(self, profile):
         return self.following.filter(id=profile.id).exists()
+
     def is_followed_by(self, profile):
         return self.followers.filter(id=profile.id).exists()
+
     
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -58,12 +63,26 @@ class Comment(models.Model):
 class Message(models.Model):
     sender = models.ForeignKey(User, related_name="sent_messages", on_delete=models.CASCADE)
     receiver = models.ForeignKey(User, related_name="received_messages", on_delete=models.CASCADE)
-    content = models.TextField()
+    content = models.TextField(blank=True)
+    image = CloudinaryField('image', blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.sender} -> {self.receiver}: {self.content[:20]}"
+    
+    
+    
+class Follow(models.Model):
+    follower = models.ForeignKey(User, related_name="following", on_delete=models.CASCADE)
+    following = models.ForeignKey(User, related_name="followers", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("follower", "following")  # prevents duplicate follows
+
+    def __str__(self):
+        return f"{self.follower.username} follows {self.following.username}"
 
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):

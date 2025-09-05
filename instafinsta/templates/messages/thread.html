@@ -5,29 +5,26 @@
 {% block content %}
 <div class="container mt-4">
     <div class="row">
-        <!-- Left column: list of conversations -->
+        <!-- Left column: list of conversations with followed users -->
         <div class="col-md-4">
             <div class="card shadow-sm">
                 <div class="card-header bg-dark text-white">
                     Messages
                 </div>
                 <ul class="list-group list-group-flush">
-    {% for user in users %}
-        <li class="list-group-item d-flex justify-content-between align-items-center
-            {% if receiver and receiver.id == user.id %}active{% endif %}">
-            
-            <a href="{% url 'messages_with' user.id %}" 
-               class="text-decoration-none {% if receiver and receiver.id == user.id %}text-white{% else %}text-dark{% endif %}">
-                {{ user.username }}
-            </a>
-
-            {% if user.unread_count > 0 %}
-                <span class="badge bg-danger rounded-pill">{{ user.unread_count }}</span>
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
-
+                    {% for user in users %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center
+                            {% if receiver and receiver.id == user.id %}active{% endif %}">
+                            <a href="{% url 'messages_with' user.id %}" 
+                               class="text-decoration-none {% if receiver and receiver.id == user.id %}text-white{% else %}text-dark{% endif %}">
+                                {{ user.username }}
+                            </a>
+                            {% if user.unread_count > 0 %}
+                                <span class="badge bg-danger rounded-pill">{{ user.unread_count }}</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
 
@@ -55,6 +52,10 @@
                                     {% endif %}
                                     d-inline-block">
                                     <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+                                    {% if message.image %}
+                                        <br>
+                                        <img src="{{ message.image.url }}" class="img-fluid rounded mt-2" alt="Message image" style="max-width: 300px;">
+                                    {% endif %}
                                     <br>
                                     <small class="text-muted">{{ message.timestamp|date:"M d, H:i" }}</small>
                                 </div>
@@ -68,9 +69,10 @@
                 <!-- Input form -->
                 {% if receiver %}
                 <div class="card-footer">
-                    <form method="post" class="d-flex">
+                    <form method="post" enctype="multipart/form-data" class="d-flex flex-column">
                         {% csrf_token %}
-                        {{ form.content|add_class:"form-control me-2" }}
+                        {{ form.content|add_class:"form-control mb-2" }}
+                        <input type="file" name="image" class="form-control mb-2" accept="image/*">
                         <button type="submit" class="btn btn-primary">Send</button>
                     </form>
                 </div>

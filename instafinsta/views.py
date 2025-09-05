@@ -1,3 +1,4 @@
+import datetime
 import random
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
@@ -7,7 +8,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
 from django.contrib import messages
 from instafinsta.serializers import ProfileDetailSerializer, ProfileSerializer, ProfileUpdateSerializer
-from .models import Profile, Post, Comment, Message
+from .models import Follow, Profile, Post, Comment, Message
 from .forms import ProfileForm, MessageForm, UserForm, UserUpdateForm
 from django.db.models import Q, Max, Count
 from rest_framework.decorators import api_view
@@ -15,6 +16,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import parser_classes
 from rest_framework.pagination import PageNumberPagination
+
 
 # ---------------------------
 # Auth Views
@@ -53,24 +55,21 @@ def logout_view(request):
 # Profile Views
 # ---------------------------
 @login_required
-def profile(request, username=None):
-    if username:
-        user = get_object_or_404(User, username=username)
-    else:
-        user = request.user
-
+def profile(request):
+    user = get_object_or_404(User, username=request.user.username)
     profile = get_object_or_404(Profile, user=user)
-    posts = Post.objects.filter(author=user).order_by("-created_at")
-    is_owner = (user == request.user)
+
     followers_count = profile.followers.count()
     following_count = profile.following.count()
 
+    # Check if current user follows this profile
+    is_following = profile.followers.filter(id=request.user.profile.id).exists()
+
     return render(request, "profile.html", {
         "profile": profile,
-        "posts": posts,
-        "is_owner": is_owner,
         "followers_count": followers_count,
         "following_count": following_count,
+        "is_following": is_following,   # pass this to template
     })
 
 @login_required
@@ -91,24 +90,20 @@ def edit_profile(request):
         "profile_form": profile_form,
     })
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
-def avatar(request):
-    user = request.user
-    profile = get_object_or_404(Profile, user=user)
-    serializers = ProfileUpdateSerializer(instance=profile, data=request.data)
-    if request.method == 'POST':
-        image = request.FILES.get('image')
-        if not image:
-            return Response(serializers.errors, status=400)
-        profile.avatar = image
-        profile.save()
+def upload_avatar(request):
+    profile = get_object_or_404(Profile, user=request.user)
+    serializer = ProfileUpdateSerializer(instance=profile, data=request.data, partial=True)
+
+    if serializer.is_valid():
+        serializer.save()
         return Response({
-            "message": "Image uploaded successfully",
-            "avatar": profile.avatar.url
+            "message": "Avatar uploaded successfully!",
+            "avatar_url": profile.avatar.url
         }, status=201)
-    if request.method == 'GET':
-        return Response(serializers.data, status=200)
+
+    return Response(serializer.errors, status=400)
     
 
 
@@ -119,6 +114,10 @@ def remove_profile_pic(request):
     if profile.avatar:  # Use 'avatar' to match CloudinaryField
         profile.avatar.delete(save=True)  # Deletes file from Cloudinary and clears DB field
     return redirect('profile')
+
+@login_required
+def my_profile(request):
+    return redirect("view_profile", username=request.user.username)
 
 # ---------------------------
 # Posts Views
@@ -181,48 +180,48 @@ def post_detail(request, post_id):
 @login_required
 def inbox(request):
     user = request.user
-    threads = (
-        Message.objects.filter(Q(sender=user) | Q(receiver=user))
-        .values("sender", "receiver")
-        .annotate(last_msg=Max("timestamp"))
-        .order_by("-last_msg")
-    )
+    followed_users = user.profile.following.all()  # Should return User instances
+
+    # Ensure followed_users contains only valid User instances
+    valid_followed_users = [u for u in followed_users if isinstance(u, User)]
 
     conversations = []
-    for t in threads:
-        other_id = t["receiver"] if t["sender"] == user.id else t["sender"]
-        other_user = User.objects.get(id=other_id)
+    for followed in valid_followed_users:
         unread_count = Message.objects.filter(
-            sender_id=other_id, receiver=user, is_read=False
+            sender=followed, receiver=user, is_read=False
         ).count()
         last_message = (
             Message.objects.filter(
-                Q(sender_id=other_id, receiver=user) | Q(sender=user, receiver_id=other_id)
+                Q(sender=followed, receiver=user) | Q(sender=user, receiver=followed)
             )
             .order_by("-timestamp")
             .first()
         )
         conversations.append({
-            "user": other_user,
+            "user": followed,
             "last_message": last_message,
             "unread_count": unread_count,
         })
+
+    conversations.sort(key=lambda c: c['last_message'].timestamp if c['last_message'] else datetime.min, reverse=True)
 
     return render(request, "messages/inbox.html", {"conversations": conversations})
 
 @login_required
 def message_thread(request, user_id):
     receiver = get_object_or_404(User, id=user_id)
+    if receiver not in request.user.profile.following.all():
+        return HttpResponseForbidden("You can only message users you follow.")
+
     messages = Message.objects.filter(
         sender__in=[request.user, receiver],
         receiver__in=[request.user, receiver]
     ).order_by("timestamp")
 
-    # Mark unread messages as read
     Message.objects.filter(sender=receiver, receiver=request.user, is_read=False).update(is_read=True)
 
     if request.method == "POST":
-        form = MessageForm(request.POST)
+        form = MessageForm(request.POST, request.FILES)
         if form.is_valid():
             msg = form.save(commit=False)
             msg.sender = request.user
@@ -236,53 +235,40 @@ def message_thread(request, user_id):
         "receiver": receiver,
         "messages": messages,
         "form": form,
+        "users": request.user.profile.following.all(),
     })
 
 @login_required
-def messages_with(request, user_id=None):
-    profile = request.user.profile
+def messages_with(request, user_id):
+    receiver = get_object_or_404(User, id=user_id)
+    if receiver not in request.user.profile.following.all():
+        return HttpResponseForbidden("You can only message users you follow.")
+    return render(request, "messages/thread.html", {"receiver": receiver})
 
-    # Get only people the user is following
-    following_profiles = profile.following.all()
-    following_users = User.objects.filter(profile__in=following_profiles)
-
-    receiver = None
-    messages = None
-    form = MessageForm()
-
-    if user_id:
-        receiver = get_object_or_404(User, id=user_id)
-        messages = Message.objects.filter(
-            sender__in=[request.user, receiver],
-            receiver__in=[request.user, receiver]
-        ).order_by("timestamp")
-
-        if request.method == "POST":
-            form = MessageForm(request.POST)
-            if form.is_valid():
-                msg = form.save(commit=False)
-                msg.sender = request.user
-                msg.receiver = receiver
-                msg.save()
-                return redirect("messages_with", user_id=receiver.id)
-
-    return render(request, "messages/thread.html", {
-        "users": following_users,  # 👈 only show following
-        "receiver": receiver,
-        "messages": messages,
-        "form": form,
-    })
 @login_required
 def messages_list(request):
-    users = User.objects.filter(
-        profile__followers=request.user
-    ).exclude(id=request.user.id).annotate(
+    users = request.user.profile.following.all().annotate(
         unread_count=Count(
             "sent_messages",
             filter=Q(sent_messages__receiver=request.user, sent_messages__is_read=False)
         )
     )
     return render(request, "messages/inbox.html", {"users": users})
+
+
+@login_required
+def send_message(request, user_id):
+    recipient = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        content = request.POST.get("content")
+        if content.strip():
+            Message.objects.create(
+                sender=request.user,
+                recipient=recipient,
+                content=content
+            )
+    return redirect("view_profile", username=recipient.username)
 
 # ---------------------------
 # Explore View
@@ -352,6 +338,10 @@ def follow_toggle(request, username):
     else:
         target_profile.followers.add(request.user)
         messages.success(request, f"You followed {target_user.username}.")
+
+    next_url = request.GET.get("next")
+    if next_url:
+       return redirect(next_url)
 
     return redirect("view_profile", username=username)
 
@@ -446,17 +436,18 @@ def unfollow_user(request, username):
 @login_required
 def follow(request, username):
     target_user = get_object_or_404(User, username=username)
-    target_profile = target_user.profile
+    target_profile = get_object_or_404(Profile, user=target_user)
 
-    if target_profile != request.user.profile:  # prevent self-follow
+    if target_profile != request.user.profile:
         request.user.profile.following.add(target_profile)
 
     return redirect("view_profile", username=username)
 
+
 @login_required
 def unfollow(request, username):
     target_user = get_object_or_404(User, username=username)
-    target_profile = target_user.profile
+    target_profile = get_object_or_404(Profile, user=target_user)
 
     if target_profile != request.user.profile:
         request.user.profile.following.remove(target_profile)

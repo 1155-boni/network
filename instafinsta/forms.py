@@ -49,18 +49,25 @@ class UserUpdateForm(forms.ModelForm):
         }
 
 class ProfileForm(forms.ModelForm):
-    bio      = forms.CharField(required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}))
-    location = forms.CharField(required=False, widget=forms.TextInput(attrs={"class": "form-control"}))
-    avatar   = forms.ImageField(required=False)
-
     class Meta:
         model = Profile
-        fields = ["bio", "location", "avatar"]
-
+        fields = ['avatar', 'bio']
+        widgets = {
+            'avatar': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*',
+            }),
+            'bio': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Write something about yourself...',
+            }),
+        }
 class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
-        fields = ["content"]
+        fields = ["content", "image"]
         widgets = {
             "content": forms.Textarea(attrs={"rows": 2, "placeholder": "Type a message...", "class": "form-control"}),
+            "image": forms.FileInput(attrs={"class": "form-control"}),
         }

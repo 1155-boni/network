@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load widget_tweaks %}
 {% block title %}Edit Profile{% endblock %}
 
 {% block content %}
@@ -9,7 +10,7 @@
       {% if messages %}
         <div class="mb-4">
           {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
               {{ message }}
               <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -17,11 +18,11 @@
         </div>
       {% endif %}
 
-      <div class="card shadow-lg border-0 rounded-4">
+      <div class="card border-0 shadow-lg rounded-4">
         <div class="card-body p-4 p-md-5">
-          <h3 class="card-title text-center mb-4">Edit Profile</h3>
+          <h3 class="card-title text-center mb-4 fw-bold text-primary">Edit Profile</h3>
 
-          <form method="post" enctype="multipart/form-data">
+          <form method="post" enctype="multipart/form-data" class="needs-validation">
             {% csrf_token %}
 
             <!-- Avatar -->
@@ -29,56 +30,59 @@
               {% if user.profile.avatar %}
                 <img id="avatarPreview"
                      src="{{ user.profile.avatar.url }}"
-                     class="rounded-circle border shadow-sm mb-2"
-                     width="120" height="120" style="object-fit:cover;">
+                     class="rounded-circle border border-3 border-light shadow-sm mb-3"
+                     width="130" height="130" style="object-fit:cover;">
               {% else %}
                 <img id="avatarPreview"
-                     src="https://via.placeholder.com/120?text=Photo"
-                     class="rounded-circle border shadow-sm mb-2"
-                     width="120" height="120" style="object-fit:cover;">
+                     src="https://via.placeholder.com/130?text=Photo"
+                     class="rounded-circle border border-3 border-light shadow-sm mb-3"
+                     width="130" height="130" style="object-fit:cover;">
               {% endif %}
-
-              <input type="file" name="avatar" id="id_avatar" class="d-none" accept="image/*">
-              <label for="id_avatar" class="btn btn-primary btn-sm">Change Photo</label>
+              <div class="d-flex justify-content-center">
+                <label for="id_avatar" class="btn btn-outline-primary btn-sm px-3 rounded-pill">
+                  <i class="bi bi-camera"></i> Change Photo
+                </label>
+              </div>
+              {{ profile_form.avatar }}
             </div>
 
             <!-- User fields -->
             <div class="row">
               <div class="col-md-6 mb-3">
-                {{ user_form.first_name.label_tag }}
-                {{ user_form.first_name }}
+                <label class="form-label fw-semibold">{{ user_form.first_name.label }}</label>
+                {{ user_form.first_name|add_class:"form-control rounded-pill shadow-sm" }}
               </div>
               <div class="col-md-6 mb-3">
-                {{ user_form.last_name.label_tag }}
-                {{ user_form.last_name }}
+                <label class="form-label fw-semibold">{{ user_form.last_name.label }}</label>
+                {{ user_form.last_name|add_class:"form-control rounded-pill shadow-sm" }}
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                {{ user_form.username.label_tag }}
-                {{ user_form.username }}
+                <label class="form-label fw-semibold">{{ user_form.username.label }}</label>
+                {{ user_form.username|add_class:"form-control rounded-pill shadow-sm" }}
               </div>
               <div class="col-md-6 mb-3">
-                {{ user_form.email.label_tag }}
-                {{ user_form.email }}
+                <label class="form-label fw-semibold">{{ user_form.email.label }}</label>
+                {{ user_form.email|add_class:"form-control rounded-pill shadow-sm" }}
               </div>
             </div>
 
             <!-- Profile fields -->
             <div class="mb-3">
-              {{ profile_form.bio.label_tag }}
-              {{ profile_form.bio }}
+              <label class="form-label fw-semibold">{{ profile_form.bio.label }}</label>
+              {{ profile_form.bio|add_class:"form-control rounded-4 shadow-sm" }}
             </div>
 
-            <div class="mb-4">
-              {{ profile_form.location.label_tag }}
-              {{ profile_form.location }}
-            </div>
-
-            <div class="d-flex justify-content-between">
-              <a href="{% url 'profile' request.user.username %}" class="btn btn-outline-secondary w-50 me-2">Cancel</a>
-              <button type="submit" class="btn btn-primary w-50 ms-2">Save Changes</button>
+            <!-- Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+              <a href="{% url 'profile' request.user.username %}" class="btn btn-outline-secondary w-50 me-2 rounded-pill shadow-sm">
+                Cancel
+              </a>
+              <button type="submit" class="btn btn-primary w-50 ms-2 rounded-pill shadow-sm">
+                Save Changes
+              </button>
             </div>
           </form>
         </div>
@@ -89,6 +93,7 @@
 </div>
 
 <script>
+  // Preview uploaded image before submitting
   const fileInput = document.getElementById('id_avatar');
   const preview   = document.getElementById('avatarPreview');
   fileInput?.addEventListener('change', (e) => {

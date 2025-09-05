@@ -12,12 +12,12 @@
           <!-- Avatar -->
           {% if profile.avatar %}
             <img src="{{ profile.avatar.url }}" 
-                 alt="{{ profile.user.username }}" 
+                 alt="{{ profile.user.username }}'s avatar" 
                  class="rounded-circle border shadow-sm mb-3" 
                  style="width:150px; height:150px; object-fit:cover;">
           {% else %}
             <img src="{% static 'images/default-avatar.jpg' %}" 
-                 alt="User" 
+                 alt="Default user avatar" 
                  class="rounded-circle border shadow-sm mb-3" 
                  style="width:150px; height:150px; object-fit:cover;">
           {% endif %}
@@ -52,7 +52,7 @@
                 <i class="bi bi-box-arrow-right"></i> Log Out
               </a>
             {% else %}
-              {% if request.user in profile.followers.all %}
+              {% if is_following %}
                 <form method="post" action="{% url 'unfollow' profile.user.username %}" class="d-inline">
                   {% csrf_token %}
                   <button type="submit" class="btn btn-outline-danger px-4 rounded-pill">
@@ -69,17 +69,35 @@
               {% endif %}
 
               <!-- ✅ Message button -->
-              <a href="{% url 'messages_with' profile.user.id %}" 
-                 class="btn btn-outline-primary px-4 rounded-pill ms-2">
-                <i class="bi bi-chat-dots"></i> Message
-              </a>
+              <!-- ✅ Message Input (if not own profile) -->
+{% if request.user != profile.user %}
+  <div class="card shadow-sm mt-4 rounded-4">
+    <div class="card-body">
+      <h5 class="fw-bold mb-3">
+        <i class="bi bi-chat-dots"></i> Send a Message
+      </h5>
+      <form method="post" action="{% url 'send_message' profile.user.id %}">
+        {% csrf_token %}
+        <div class="input-group">
+          <input type="text" name="content" 
+                 class="form-control rounded-start-pill" 
+                 placeholder="Write your message..." required>
+          <button type="submit" class="btn btn-primary rounded-end-pill">
+            <i class="bi bi-send"></i> Send
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endif %}
+
             {% endif %}
           </div>
         </div>
       </div>
 
       <!-- User Posts -->
-      <div class="mt-5">
+      <section class="mt-5">
         <h4 class="fw-bold mb-3">Posts</h4>
         {% if posts %}
           <div class="row row-cols-1 row-cols-md-2 g-4">
@@ -89,6 +107,7 @@
                   {% if post.image %}
                     <img src="{{ post.image.url }}" 
                          class="card-img-top rounded-top-4" 
+                         alt="Post by {{ profile.user.username }}"
                          style="object-fit:cover; height:200px;">
                   {% endif %}
                   <div class="card-body">
@@ -108,7 +127,7 @@
         {% else %}
           <p class="text-muted">No posts yet.</p>
         {% endif %}
-      </div>
+      </section>
 
     </div>
   </div>
