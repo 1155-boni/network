@@ -151,10 +151,11 @@ def feed(request):
 
 @login_required
 def delete_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id, User=request.user)
-    post.delete()
-    messages.success(request, "Post deleted successfully.")
-    return redirect("feed")
+    post = get_object_or_404(Post, id=post_id, user=request.user)
+    if request.method == "POST":
+        post.delete()
+        return JsonResponse({"success": True, "post_id": post_id})
+    return JsonResponse({"success": False}, status=400)
 
 
 @login_required
