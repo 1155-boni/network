@@ -9,7 +9,7 @@ from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib import messages
 from instafinsta.serializers import ProfileDetailSerializer, ProfileSerializer, ProfileUpdateSerializer
 from .models import Follow, Profile, Post, Comment, Message
-from .forms import ProfileForm, MessageForm, UserForm, UserUpdateForm
+from .forms import PostForm, ProfileForm, MessageForm, UserForm, UserUpdateForm
 from django.db.models import Q, Max, Count
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -134,19 +134,15 @@ def my_profile(request):
 @login_required
 def create_post(request):
     if request.method == "POST":
-        caption = request.POST.get("caption")
-        content = request.POST.get("content")
-        image = request.FILES.get("image")
-
-        Post.objects.create(
-            User=request.user,  # Changed from 'user' to 'User' to match model
-            caption=caption,
-            content=content,
-            image=image
-        )
-        return redirect("feed")
-
-    return render(request, "create_post.html")
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.user = request.user   # ✅ lowercase 'user'
+            post.save()
+            return redirect("feed")
+    else:
+        form = PostForm()
+    return render(request, "instafinsta/create_post.html", {"form": form})
 
 @login_required
 def feed(request):

@@ -31,6 +31,8 @@ urlpatterns = [
     path("profile/<str:username>/", profile, name="view_profile"),
     path("unread-messages-count/", unread_count, name="unread_count"),
     path("messages/<int:user_id>/", views.message_thread, name="message_thread"), 
+    path("profile/<str:username>/", views.profile, name="profile"),
+
     
 
     
