@@ -36,7 +36,7 @@ class Profile(models.Model):
 
     
 class Post(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = CloudinaryField('image', blank=True, null=True)  # ✅ Cloudinary for post images
     caption = models.TextField(blank=True)
     content = models.TextField(blank=True)   # ✅ Added content field
@@ -48,7 +48,7 @@ class Post(models.Model):
         return self.likes.count()
 
     def __str__(self):
-        return f"Post by {self.author.username} - {self.caption[:20]}"
+        return f"Post by {self.user.username} - {self.caption[:20]}"
 
 
 class Comment(models.Model):
@@ -61,16 +61,15 @@ class Comment(models.Model):
         return f"{self.user.username} on Post {self.post.id}"
 
 class Message(models.Model):
-    sender = models.ForeignKey(User, related_name="sent_messages", on_delete=models.CASCADE)
-    receiver = models.ForeignKey(User, related_name="received_messages", on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
     content = models.TextField(blank=True)
-    image = CloudinaryField('image', blank=True, null=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to="messages/images/", blank=True, null=True)  # ✅ allow image uploads
     is_read = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.sender} -> {self.receiver}: {self.content[:20]}"
-    
+        return f"From {self.sender} to {self.receiver}: {self.content[:30]}"
     
     
 class Follow(models.Model):

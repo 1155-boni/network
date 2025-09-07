@@ -14,8 +14,8 @@
         <!-- Post Header -->
         <div class="d-flex align-items-center mb-2">
           <h6 class="mb-0">
-            <a href="{% url 'view_profile' post.author.username %}" class="fw-bold text-dark text-decoration-none">
-              {{ post.author.username }}
+            <a href="{% url 'view_profile' post.user.id %}" class="fw-bold text-dark text-decoration-none">
+              {{ post.user.username }}
             </a>
           </h6>
           <small class="text-muted ms-2">{{ post.created_at|date:"M d, Y H:i" }}</small>

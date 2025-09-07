@@ -4,81 +4,83 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="row">
-        <!-- Left column: list of conversations with followed users -->
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-dark text-white">
-                    Messages
-                </div>
-                <ul class="list-group list-group-flush">
-                    {% for user in users %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center
-                            {% if receiver and receiver.id == user.id %}active{% endif %}">
-                            <a href="{% url 'messages_with' user.id %}" 
-                               class="text-decoration-none {% if receiver and receiver.id == user.id %}text-white{% else %}text-dark{% endif %}">
-                                {{ user.username }}
-                            </a>
-                            {% if user.unread_count > 0 %}
-                                <span class="badge bg-danger rounded-pill">{{ user.unread_count }}</span>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
+  <div class="row">
+    <!-- Left column: conversations -->
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+          Conversations
         </div>
-
-        <!-- Right column: chat window -->
-        <div class="col-md-8">
-            <div class="card shadow-sm d-flex flex-column" style="height: 500px;">
-                <div class="card-header bg-light">
-                    {% if receiver %}
-                        Chat with <strong>{{ receiver.username }}</strong>
-                    {% else %}
-                        <em>Select a user to start messaging</em>
-                    {% endif %}
-                </div>
-
-                <!-- Messages area -->
-                <div class="card-body flex-grow-1" style="overflow-y: auto;">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="mb-3 {% if message.sender == request.user %}text-end{% endif %}">
-                                <div class="p-2 rounded 
-                                    {% if message.sender == request.user %}
-                                        bg-primary text-white
-                                    {% else %}
-                                        bg-light
-                                    {% endif %}
-                                    d-inline-block">
-                                    <strong>{{ message.sender.username }}:</strong> {{ message.content }}
-                                    {% if message.image %}
-                                        <br>
-                                        <img src="{{ message.image.url }}" class="img-fluid rounded mt-2" alt="Message image" style="max-width: 300px;">
-                                    {% endif %}
-                                    <br>
-                                    <small class="text-muted">{{ message.timestamp|date:"M d, H:i" }}</small>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted">No messages yet.</p>
-                    {% endif %}
-                </div>
-
-                <!-- Input form -->
-                {% if receiver %}
-                <div class="card-footer">
-                    <form method="post" enctype="multipart/form-data" class="d-flex flex-column">
-                        {% csrf_token %}
-                        {{ form.content|add_class:"form-control mb-2" }}
-                        <input type="file" name="image" class="form-control mb-2" accept="image/*">
-                        <button type="submit" class="btn btn-primary">Send</button>
-                    </form>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+        <ul class="list-group list-group-flush">
+          {% for user in users %}
+            <li class="list-group-item d-flex justify-content-between align-items-center
+              {% if receiver and receiver.id == user.id %}active{% endif %}">
+              <a href="{% url 'message_thread' user.id %}" 
+                 class="text-decoration-none {% if receiver and receiver.id == user.id %}text-white{% else %}text-dark{% endif %}">
+                {{ user.username }}
+              </a>
+              {% if user.unread_count > 0 %}
+                <span class="badge bg-danger rounded-pill">{{ user.unread_count }}</span>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li class="list-group-item">No conversations yet.</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
+
+    <!-- Right column: chat -->
+    <div class="col-md-8">
+      <div class="card shadow-sm d-flex flex-column" style="height: 500px;">
+        <div class="card-header bg-light">
+          {% if receiver %}
+            Chat with <strong>{{ receiver.username }}</strong>
+          {% else %}
+            <em>Select a user to start chatting</em>
+          {% endif %}
+        </div>
+
+        <!-- Messages -->
+        <div id="messages-list" class="card-body flex-grow-1" style="overflow-y: auto;">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="mb-3 {% if message.sender == request.user %}text-end{% endif %}">
+                <div class="p-2 rounded 
+                  {% if message.sender == request.user %}
+                    bg-primary text-white
+                  {% else %}
+                    bg-light
+                  {% endif %}
+                  d-inline-block">
+                  <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+                  {% if message.image %}
+                    <br>
+                    <img src="{{ message.image.url }}" class="img-fluid rounded mt-2" style="max-width: 300px;">
+                  {% endif %}
+                  <br>
+                  <small class="text-muted">{{ message.timestamp|date:"M d, H:i" }}</small>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted">No messages yet.</p>
+          {% endif %}
+        </div>
+
+        <!-- Input -->
+        {% if receiver %}
+        <div class="card-footer">
+          <form id="message-form" method="post" enctype="multipart/form-data" class="d-flex flex-column">
+            {% csrf_token %}
+            {{ form.content|add_class:"form-control mb-2" }}
+            <input type="file" id="id_image" name="image" class="form-control mb-2" accept="image/*">
+            <button type="submit" class="btn btn-primary">Send</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

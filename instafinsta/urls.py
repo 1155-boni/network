@@ -8,27 +8,34 @@ urlpatterns = [
     path('signup/', signup, name='signup'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
-    path('profile/', profile, name='profile'),
     path('post/', create_post, name='create_post'),
     path('messages/<int:user_id>/', message_thread, name='messages'),
     path('feed/', feed, name='feed'),
     path('profile/edit/', edit_profile, name='edit_profile'),
     path('profile/remove-pic/', remove_profile_pic, name='remove_profile_pic'),
-    path('messages/', views.inbox, name='inbox'),
-    path('messages/with/<int:user_id>/', views.messages_with, name='messages_with'),
-    path('messages/list/', views.messages_list, name='messages_list'),
-    path("profile/", views.profile, name="my_profile"),  
-    path("profile/<str:username>/", views.profile, name="profile"),
-    path("explore/", views.explore, name="explore"),
-    path("post/<int:post_id>/", views.post_detail, name="post_detail"),
-    path("profile/<str:username>/", views.view_profile, name="view_profile"),
-    path("profile/<str:username>/follow/", views.follow_toggle, name="follow_toggle"),
-    path("profile/<str:username>/", views.view_profile, name="view_profile"),
-    path("follow/<str:username>/", views.follow, name="follow"),
-    path("unfollow/<str:username>/", views.unfollow, name="unfollow"),
-    path('api/profiles/', views.profile_list, name="profile-list"),
-    path("post/<int:post_id>/delete/", views.delete_post, name="delete_post"),
-    path("like/<int:post_id>/", views.toggle_like, name="toggle_like"),
-    path("comment/<int:post_id>/", views.add_comment, name="add_comment"),
+    path('messages/', inbox, name='inbox'),
+    path('messages/with/<int:user_id>/', messages_with, name='messages_with'),
+    path('messages/list/', messages_list, name='messages_list'),
+    path("explore/", explore, name="explore"),
+    path("post/<int:post_id>/", post_detail, name="post_detail"),
+    path("toggle-follow/<str:username>/", views.toggle_follow, name="toggle_follow"),
+    path("toggle-like/<int:post_id>/", views.toggle_like, name="toggle_like"),
+    path("follow/<str:username>/", follow, name="follow"),
+    path("unfollow/<str:username>/", unfollow, name="unfollow"),
+    path('api/profiles/', profile_list, name="profile-list"),
+    path("post/<int:post_id>/delete/", delete_post, name="delete_post"),
+    path("comment/<int:post_id>/", add_comment, name="add_comment"),
+    path("send/<int:user_id>/", send_message, name="send_message"),
+    # profile URLs
+    path("profile/", profile, name="my_profile"),
+    path("profile/<str:username>/", profile, name="view_profile"),
+    path("unread-messages-count/", unread_count, name="unread_count"),
+    path("messages/<int:user_id>/", views.message_thread, name="message_thread"), 
+    
+
+    
+
+
+
 ]
 
