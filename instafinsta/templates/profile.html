@@ -81,10 +81,7 @@
                   <h5 class="fw-bold mb-3">
                     <i class="bi bi-chat-dots"></i> Send a Message
                   </h5>
-                  <form
-                    method="post"
-                    action="{% url 'send_message' profile.user.id %}"
-                  >
+                  <form method="post" action="{% url 'send_message' profile.user.id %}">
                     {% csrf_token %}
                     <div class="input-group">
                       <input
@@ -94,10 +91,7 @@
                         placeholder="Write your message..."
                         required
                       />
-                      <button
-                        type="submit"
-                        class="btn btn-primary rounded-end-pill"
-                      >
+                      <button type="submit" class="btn btn-primary rounded-end-pill">
                         <i class="bi bi-send"></i> Send
                       </button>
                     </div>
@@ -135,7 +129,7 @@
                   <!-- Likes -->
                   <span
                     class="badge bg-gradient px-3 py-2 shadow-sm"
-                    style="background: linear-gradient(45deg, #ff416c, #ff4b2b); font-size: 0.9rem;"
+                    style="background: linear-gradient(45deg, #d4c6c9, #3f3634); font-size: 0.9rem; color: black;"
                   >
                     ❤️ {{ post.like_count }} Likes
                   </span>
@@ -164,5 +158,45 @@
   </div>
 </div>
 
+<!-- ✅ AJAX script for follow/unfollow -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const followBtn = document.getElementById("follow-btn");
+  if (followBtn) {
+    followBtn.addEventListener("click", function () {
+      const url = this.dataset.url;
 
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            alert(data.error);
+            return;
+          }
+
+          // Update button text & style
+          if (data.action === "followed") {
+            followBtn.classList.remove("btn-success");
+            followBtn.classList.add("btn-outline-danger");
+            followBtn.innerHTML = '<i class="bi bi-person-dash"></i> Unfollow';
+          } else {
+            followBtn.classList.remove("btn-outline-danger");
+            followBtn.classList.add("btn-success");
+            followBtn.innerHTML = '<i class="bi bi-person-plus"></i> Follow';
+          }
+
+          // Update followers count
+          document.getElementById("followers-count").innerText = data.followers_count;
+        })
+        .catch(error => console.error("Error:", error));
+    });
+  }
+});
+</script>
 {% endblock %}

@@ -17,21 +17,32 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     bio = models.TextField(blank=True, null=True)
     avatar = CloudinaryField('image', blank=True, null=True)
-    followers = models.ManyToManyField("self", symmetrical=False, related_name="following_set", blank=True)
-    following = models.ManyToManyField("self", symmetrical=False, related_name="followers_set", blank=True)
+
+    # ✅ Only one relation (followers)
+    followers = models.ManyToManyField(
+        "self",
+        symmetrical=False,
+        related_name="following",
+        blank=True
+    )
 
     def __str__(self):
         return self.user.username
 
     @property
-    def get_following(self):
-        # users this profile follows
-        return Profile.objects.filter(followers=self)
+    def followers_count(self):
+        return self.followers.count()
+
+    @property
+    def following_count(self):
+        return self.following.count()
 
     def is_following(self, profile):
+        """Check if self follows another profile"""
         return self.following.filter(id=profile.id).exists()
 
     def is_followed_by(self, profile):
+        """Check if another profile follows self"""
         return self.followers.filter(id=profile.id).exists()
 
     
