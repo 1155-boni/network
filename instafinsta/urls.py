@@ -20,7 +20,6 @@ urlpatterns = [
     path("post/<int:post_id>/", post_detail, name="post_detail"),
     path("toggle-follow/<str:username>/", views.toggle_follow, name="toggle_follow"),
     path("toggle-like/<int:post_id>/", views.toggle_like, name="toggle_like"),
-    path("follow/<str:username>/", follow, name="follow"),
     path("unfollow/<str:username>/", unfollow, name="unfollow"),
     path('api/profiles/', profile_list, name="profile-list"),
     path("post/<int:post_id>/delete/", delete_post, name="delete_post"),
@@ -31,7 +30,7 @@ urlpatterns = [
     path("profile/<str:username>/", profile, name="view_profile"),
     path("unread-messages-count/", unread_count, name="unread_count"),
     path("messages/<int:user_id>/", views.message_thread, name="message_thread"), 
-path("profile/<str:username>/", views.profile, name="profile"),
+    path("profile/<str:username>/", views.profile, name="profile"),
 
     
 
