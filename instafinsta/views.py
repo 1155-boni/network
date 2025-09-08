@@ -142,7 +142,7 @@ def create_post(request):
             return redirect("feed")
     else:
         form = PostForm()
-    return render(request, "instafinsta/create_post.html", {"form": form})
+    return render(request, "create_post.html", {"form": form})
 
 @login_required
 def feed(request):
@@ -253,6 +253,7 @@ def send_message(request, user_id):
     if request.method == "POST":
         content = request.POST.get("content")
         image = request.FILES.get("image")
+
         if content or image:
             Message.objects.create(
                 sender=request.user,
@@ -260,9 +261,19 @@ def send_message(request, user_id):
                 content=content,
                 image=image
             )
-            return JsonResponse({"success": True})
 
-    return JsonResponse({"success": False})
+            # ✅ If AJAX → return JSON
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({"success": True})
+
+            # ✅ Otherwise redirect to receiver's profile
+            return redirect("profile", username=receiver.username)
+
+    # Handle GET or invalid POST
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({"success": False})
+    return redirect("profile", username=receiver.username)
+
 @login_required
 def unread_count(request):
     # Count all unread messages for current user
@@ -341,22 +352,26 @@ def toggle_follow(request, username):
     })
 
 
-# 🔹 Like/Unlike Post (AJAX)
 @login_required
 def toggle_like(request, post_id):
     post = get_object_or_404(Post, id=post_id)
 
-    if post.likes.filter(id=request.user.id).exists():
+    if request.user in post.likes.all():
         post.likes.remove(request.user)
         liked = False
     else:
         post.likes.add(request.user)
         liked = True
 
-    return JsonResponse({
-        "liked": liked,
-        "likes_count": post.likes.count()
-    })
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({
+            "liked": liked,
+            "like_count": post.likes.count(),
+        })
+
+    # 🔥 Normal form submit → redirect to profile
+    return redirect("feed")
+
 
 @login_required
 def unfollow_toggle(request, username):
