@@ -373,23 +373,23 @@ def toggle_like(request, post_id):
     return redirect("feed")
 
 
-@login_required
-def unfollow_toggle(request, username):
-    target_user = get_object_or_404(User, username=username)
-    target_profile = get_object_or_404(Profile, user=target_user)
+# @login_required
+# def unfollow_toggle(request, username):
+#     target_user = get_object_or_404(User, username=username)
+#     target_profile = get_object_or_404(Profile, user=target_user)
 
-    if request.user == target_user:
-        messages.warning(request, "You cannot unfollow yourself.")
-        return redirect("view_profile", username=username)
+#     if request.user == target_user:
+#         messages.warning(request, "You cannot unfollow yourself.")
+#         return redirect("view_profile", username=username)
     
-    if request.user in target_profile.followers.all():
-        target_profile.followers.remove(request.user)
-        messages.success(request, f"You unfollowed {target_user.username}.")
-    else:
-        target_profile.followers.add(request.user)
-        messages.success(request, f"You followed {target_user.username}.")
+#     if request.user in target_profile.followers.all():
+#         target_profile.followers.remove(request.user)
+#         messages.success(request, f"You unfollowed {target_user.username}.")
+#     else:
+#         target_profile.followers.add(request.user)
+#         messages.success(request, f"You followed {target_user.username}.")
 
-        return redirect("view_profile", username=username)
+#         return redirect("view_profile", username=username)
 
 
 @login_required

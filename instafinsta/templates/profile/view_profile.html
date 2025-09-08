@@ -12,19 +12,23 @@
         <img src="{% static 'images/default.jpg' %}" alt="Default Profile" width="120" height="120">
     {% endif %}
 
-    <p>Followers: {{ followers_count }}</p>
+    <!-- Followers / Following -->
+    <p>Followers: <span id="followers-count">{{ followers_count }}</span></p>
     <p>Following: {{ following_count }}</p>
 
     <!-- Follow/Unfollow Button -->
     {% if not is_owner %}
-        <form action="{% url 'follow_toggle' user_profile.username %}" method="post">
-            {% csrf_token %}
+        <button
+            id="follow-btn"
+            class="btn {% if request.user in profile.followers.all %}btn-danger{% else %}btn-primary{% endif %}"
+            data-url="{% url 'follow_toggle' user_profile.username %}"
+        >
             {% if request.user in profile.followers.all %}
-                <button type="submit" class="btn btn-danger">Unfollow</button>
+                Unfollow
             {% else %}
-                <button type="submit" class="btn btn-primary">Follow</button>
+                Follow
             {% endif %}
-        </form>
+        </button>
     {% endif %}
 
     <hr>
@@ -39,4 +43,46 @@
         <p>No posts yet.</p>
     {% endfor %}
 </div>
+
+<!-- AJAX Script for Follow/Unfollow -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const followBtn = document.getElementById("follow-btn");
+    if (followBtn) {
+        followBtn.addEventListener("click", function () {
+            const url = this.dataset.url;
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+
+                    // Update button text and style
+                    if (data.action === "followed") {
+                        followBtn.classList.remove("btn-primary");
+                        followBtn.classList.add("btn-danger");
+                        followBtn.innerText = "Unfollow";
+                    } else {
+                        followBtn.classList.remove("btn-danger");
+                        followBtn.classList.add("btn-primary");
+                        followBtn.innerText = "Follow";
+                    }
+
+                    // Update followers count
+                    document.getElementById("followers-count").innerText = data.followers_count;
+                })
+                .catch(error => console.error("Error:", error));
+        });
+    }
+});
+</script>
 {% endblock %}
