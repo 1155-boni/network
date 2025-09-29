@@ -5,5 +5,5 @@
 - [x] Remove duplicate follow functions: follow_user, unfollow_user, follow, unfollow
 - [x] Fix URL name in urls.py to 'follow_toggle'
 - [x] Create migration for removing Follow model
-- [ ] Test follow functionality
-- [ ] Commit changes
+- [x] Test follow functionality
+- [x] Commit changes
