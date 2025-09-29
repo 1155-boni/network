@@ -20,11 +20,63 @@ body {
   padding: 0 20px;
 }
 
-/* Sidebar Refinements */
+/* Sidebar (Sidenavbar) */
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
   background: #fff;
   border-right: 1px solid #dbdbdb;
   box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  z-index: 1000;
+  padding: 1rem;
+  overflow-y: auto;
+  transform: translateX(0);
+  transition: transform 0.3s ease;
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1010;
+  background: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mobile-menu-toggle:hover {
+  background: #f0f0f0;
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
 }
 
 .sidebar h4 {
@@ -55,7 +107,7 @@ body {
 }
 
 .sidebar .nav-link.active {
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  background: linear-gradient(45deg, #8e44ad 0%, #9b59b6 25%, #3498db 50%, #2980b9 75%, #1f618d 100%);
   color: white;
 }
 
@@ -68,6 +120,7 @@ body {
   background: #fafafa;
   min-height: 100vh;
   padding: 2rem 0;
+  margin-left: 250px;
 }
 
 /* Cards */
@@ -85,7 +138,7 @@ body {
 
 /* Buttons */
 .primary-btn {
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  background: linear-gradient(45deg, #8e44ad 0%, #9b59b6 25%, #3498db 50%, #2980b9 75%, #1f618d 100%);
   border: none;
   color: white;
   border-radius: 8px;
@@ -125,8 +178,8 @@ body {
 }
 
 .follow-btn.success {
-  background: #3897f0;
-  border: 1px solid #3897f0;
+  background: #3498db;
+  border: 1px solid #3498db;
   color: white;
 }
 
@@ -147,7 +200,7 @@ body {
 }
 
 .form-input:focus {
-  border-color: #3897f0;
+  border-color: #3498db;
   outline: none;
   background: white;
 }
@@ -319,7 +372,7 @@ body {
 }
 
 .message-sent {
-  background: #3897f0;
+  background: #8e44ad;
   color: white;
   margin-left: auto;
   border-bottom-right-radius: 4px;
@@ -412,12 +465,11 @@ footer {
 /* Responsive Design */
 @media (max-width: 768px) {
   .sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid #dbdbdb;
-    padding: 1rem;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.active {
+    transform: translateX(0);
   }
 
   .content {
@@ -607,7 +659,7 @@ footer {
 }
 
 .message-item.sent .message-bubble {
-  background: #3897f0;
+  background: #8e44ad;
   color: white;
   margin-left: auto;
   border-bottom-right-radius: 4px;

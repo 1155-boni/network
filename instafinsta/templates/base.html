@@ -14,10 +14,16 @@
 </head>
 <body>
 
-  
+  <!-- Mobile Menu Toggle -->
+  <button class="mobile-menu-toggle d-md-none" id="mobile-menu-toggle">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <!-- Sidebar Overlay for Mobile -->
+  <div class="sidebar-overlay d-md-none" id="sidebar-overlay"></div>
 
   <!-- Sidebar -->
-  <div class="sidebar d-flex flex-column">
+  <div class="sidebar d-flex flex-column" id="sidebar">
     <h4 class="fw-bold"> <img src="{% static 'images/logo.png' %}"  height="45" width="45" alt="My Logo">
 InstaFinsta</h4>
 
@@ -164,6 +170,26 @@ document.addEventListener("DOMContentLoaded", () => {
             followersCountEl.textContent = data.followers_count;
           }
         });
+    });
+  }
+});
+</script>
+<!-- Mobile Sidebar Toggle Script -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const toggleBtn = document.getElementById("mobile-menu-toggle");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebar-overlay");
+
+  if (toggleBtn && sidebar && overlay) {
+    toggleBtn.addEventListener("click", function() {
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    });
+
+    overlay.addEventListener("click", function() {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
     });
   }
 });
