@@ -1,0 +1,710 @@
+/* Instafinsta Custom Styles - Instagram Inspired */
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #fafafa;
+  color: #262626;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 935px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Sidebar Refinements */
+.sidebar {
+  background: #fff;
+  border-right: 1px solid #dbdbdb;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.sidebar h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar .nav-link {
+  color: #262626;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar .nav-link:hover {
+  background-color: #efefef;
+  color: #262626;
+}
+
+.sidebar .nav-link.active {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: white;
+}
+
+.sidebar .nav-link i {
+  font-size: 1.25rem;
+}
+
+/* Content Area */
+.content {
+  background: #fafafa;
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+/* Cards */
+.instagram-card {
+  background: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.instagram-card .card-body {
+  padding: 1.5rem;
+}
+
+/* Buttons */
+.primary-btn {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  border: none;
+  color: white;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+}
+
+.primary-btn:hover {
+  opacity: 0.9;
+  color: white;
+}
+
+.outline-btn {
+  border: 1px solid #dbdbdb;
+  background: transparent;
+  color: #262626;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.outline-btn:hover {
+  background: #efefef;
+  color: #262626;
+}
+
+.follow-btn {
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.follow-btn.success {
+  background: #3897f0;
+  border: 1px solid #3897f0;
+  color: white;
+}
+
+.follow-btn.danger {
+  background: transparent;
+  border: 1px solid #ed4956;
+  color: #ed4956;
+}
+
+/* Forms */
+.form-input {
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  background: #fafafa;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus {
+  border-color: #3897f0;
+  outline: none;
+  background: white;
+}
+
+.input-group .form-control {
+  border-radius: 25px 0 0 25px;
+}
+
+.input-group .btn {
+  border-radius: 0 25px 25px 0;
+}
+
+/* Posts */
+.post-container {
+  background: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.post-header {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid #efefef;
+}
+
+.post-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.post-image {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+.post-actions {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #efefef;
+}
+
+.like-btn, .comment-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #262626;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.like-btn:hover, .comment-btn:hover {
+  background: #efefef;
+}
+
+.post-caption {
+  padding: 0 1rem 1rem;
+  font-size: 0.875rem;
+}
+
+.post-likes {
+  padding: 0 1rem 0.5rem;
+  font-weight: 600;
+  color: #262626;
+}
+
+/* Profile */
+.profile-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 2rem 0;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #262626;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #8e8e8e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.profile-post-thumbnail {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.profile-post-thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.profile-post-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Auth Pages */
+.auth-container {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.auth-card {
+  max-width: 350px;
+  width: 100%;
+  padding: 2rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.auth-heading {
+  font-size: 2rem;
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #262626;
+}
+
+/* Messages */
+.message-bubble {
+  max-width: 70%;
+  padding: 0.75rem 1rem;
+  border-radius: 18px;
+  margin-bottom: 0.5rem;
+  word-wrap: break-word;
+}
+
+.message-sent {
+  background: #3897f0;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+.message-received {
+  background: #efefef;
+  color: #262626;
+  border-bottom-left-radius: 4px;
+}
+
+.unread-badge {
+  background: #ed4956;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Explore */
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.explore-user-card {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 12px;
+  transition: box-shadow 0.2s ease;
+}
+
+.explore-user-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.explore-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+}
+
+/* Create Post */
+.create-post-form {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+/* Edit Profile */
+.edit-profile-form {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.profile-pic-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+/* Footer */
+footer {
+  background: #fafafa;
+  border-top: 1px solid #dbdbdb;
+  padding: 2rem 0;
+  text-align: center;
+  color: #8e8e8e;
+  margin-top: 3rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #dbdbdb;
+    padding: 1rem;
+  }
+
+  .content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .profile-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .post-image {
+    height: 300px;
+  }
+
+  .auth-card {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 10px;
+  }
+
+  .post-actions {
+    padding: 0.5rem;
+  }
+
+  .like-btn, .comment-btn {
+    font-size: 1.25rem;
+  }
+}
+
+/* Additional Classes */
+
+/* User Avatars */
+.user-avatar-small {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Explore */
+.explore-users-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.explore-user-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.explore-user-item:hover {
+  background: #f0f0f0;
+}
+
+.explore-posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.explore-post-card {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.explore-post-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.explore-post-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.explore-post-card:hover .explore-post-overlay {
+  opacity: 1;
+}
+
+.overlay-content {
+  color: white;
+  font-size: 1.25rem;
+  display: flex;
+  gap: 1rem;
+}
+
+/* Messages */
+.messages-container {
+  display: flex;
+  gap: 2rem;
+}
+
+.conversations-sidebar {
+  width: 300px;
+}
+
+.conversations-header {
+  padding: 1rem;
+  font-weight: 600;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.conversations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.conversation-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s;
+}
+
+.conversation-item:hover {
+  background: #f8f8f8;
+}
+
+.conversation-item.active {
+  background: #e3f2fd;
+}
+
+.conversation-link {
+  text-decoration: none;
+  color: #262626;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.chat-main {
+  flex: 1;
+}
+
+.chat-window {
+  background: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  padding: 1rem;
+  border-bottom: 1px solid #dbdbdb;
+  font-weight: 600;
+}
+
+.messages-list {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.message-item {
+  margin-bottom: 1rem;
+}
+
+.message-item.sent {
+  text-align: right;
+}
+
+.message-item.sent .message-bubble {
+  background: #3897f0;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+.message-item.received .message-bubble {
+  background: #efefef;
+  color: #262626;
+  border-bottom-left-radius: 4px;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.message-form-container {
+  padding: 1rem;
+  border-top: 1px solid #dbdbdb;
+}
+
+.message-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.message-form .form-input {
+  flex: 1;
+}
+
+.message-image {
+  max-width: 200px;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+/* Hero Section */
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  min-height: 60vh;
+}
+
+.hero-content {
+  flex: 1;
+  max-width: 500px;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.hero-image {
+  flex: 1;
+  text-align: center;
+}
+
+.hero-image img {
+  max-width: 300px;
+}
+
+/* Post Preview */
+.post-preview-image {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/* Utilities */
+.text-muted {
+  color: #8e8e8e !important;
+}
+
+.fw-bold {
+  font-weight: 600 !important;
+}
+
+.rounded-pill {
+  border-radius: 50px !important;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}

@@ -1,9 +1,25 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Instafinsta - Share Your Moments{% endblock %}
 
 {% block content %}
-  <h1>Welcome to the Home Page!</h1>
+{% if user.is_authenticated %}
   {% include 'feed.html' %}
+{% else %}
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">Welcome to Instafinsta</h1>
+      <p class="hero-subtitle">Share your moments, connect with friends, and discover amazing content.</p>
+      <div class="hero-buttons">
+        <a href="{% url 'signup' %}" class="primary-btn">Sign Up</a>
+        <a href="{% url 'login' %}" class="outline-btn">Log In</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="{% static 'images/logo.png' %}" alt="Instafinsta Logo">
+    </div>
+  </div>
+{% endif %}
 {% endblock %}

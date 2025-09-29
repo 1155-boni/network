@@ -3,159 +3,97 @@
 
 {% block content %}
 <div class="container">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <!-- Profile Card -->
-      <div class="card shadow-lg border-0 rounded-4">
-        <div class="card-body text-center p-5">
-          <!-- Avatar -->
-          {% if profile.avatar %}
-          <img
-            src="{{ profile.avatar.url }}"
-            alt="{{ profile.user.username }}'s avatar"
-            class="rounded-circle border shadow-sm mb-3"
-            style="width: 150px; height: 150px; object-fit: cover"
-          />
-          {% else %}
-          <img
-            src="{% static 'images/default-avatar.jpg' %}"
-            alt="Default user avatar"
-            class="rounded-circle border shadow-sm mb-3"
-            style="width: 150px; height: 150px; object-fit: cover"
-          />
-          {% endif %}
+  <!-- Profile Card -->
+  <div class="instagram-card text-center mb-5">
+    <!-- Avatar -->
+    {% if profile.avatar %}
+    <img src="{{ profile.avatar.url }}" alt="{{ profile.user.username }}'s avatar" class="profile-avatar">
+    {% else %}
+    <img src="{% static 'images/default-avatar.jpg' %}" alt="Default user avatar" class="profile-avatar">
+    {% endif %}
 
-          <!-- Username -->
-          <h3 class="fw-bold mb-0">{{ profile.user.username }}</h3>
+    <!-- Username -->
+    <h3 class="fw-bold mb-2">{{ profile.user.username }}</h3>
 
-          <!-- Bio -->
-          <p class="text-muted mt-2">
-            {% if profile.bio %} {{ profile.bio }} {% else %}
-            <em>No bio yet</em> {% endif %}
-          </p>
+    <!-- Bio -->
+    <p class="text-muted mb-4">
+      {% if profile.bio %} {{ profile.bio }} {% else %}
+      <em>No bio yet</em> {% endif %}
+    </p>
 
-          <!-- Followers / Following -->
-          <div class="d-flex justify-content-center gap-4 my-3">
-            <div>
-              <h5 class="fw-bold mb-0" id="followers-count">{{ profile.followers.count }}</h5>
-              <small class="text-muted">Followers</small>
-            </div>
-            <div>
-              <h5 class="fw-bold mb-0">{{ profile.following.count }}</h5>
-              <small class="text-muted">Following</small>
-            </div>
-          </div>
-
-          <!-- Buttons -->
-          <div class="mt-3">
-            {% if request.user == profile.user %}
-            <a
-              href="{% url 'edit_profile' %}"
-              class="btn btn-primary px-4 rounded-pill shadow-sm me-2"
-            >
-              <i class="bi bi-pencil-square"></i> Edit Profile
-            </a>
-            <a
-              href="{% url 'logout' %}"
-              class="btn btn-danger px-4 rounded-pill shadow-sm"
-            >
-              <i class="bi bi-box-arrow-right"></i> Log Out
-            </a>
-            {% else %}
-              <!-- ✅ Follow/Unfollow AJAX button -->
-              <button
-                id="follow-btn"
-                class="btn {% if is_following %}btn-outline-danger{% else %}btn-success{% endif %} px-4 rounded-pill"
-                data-url="{% url 'follow_toggle' profile.user.username %}"
-              >
-                {% if is_following %}
-                  <i class="bi bi-person-dash"></i> Unfollow
-                {% else %}
-                  <i class="bi bi-person-plus"></i> Follow
-                {% endif %}
-              </button>
-
-              <!-- ✅ Message form -->
-              <div class="card shadow-sm mt-4 rounded-4">
-                <div class="card-body">
-                  <h5 class="fw-bold mb-3">
-                    <i class="bi bi-chat-dots"></i> Send a Message
-                  </h5>
-                  <form method="post" action="{% url 'send_message' profile.user.id %}">
-                    {% csrf_token %}
-                    <div class="input-group">
-                      <input
-                        type="text"
-                        name="content"
-                        class="form-control rounded-start-pill"
-                        placeholder="Write your message..."
-                        required
-                      />
-                      <button type="submit" class="btn btn-primary rounded-end-pill">
-                        <i class="bi bi-send"></i> Send
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            {% endif %}
-          </div>
-        </div>
+    <!-- Followers / Following -->
+    <div class="profile-stats">
+      <div class="stat-item">
+        <div class="stat-number" id="followers-count">{{ profile.followers.count }}</div>
+        <div class="stat-label">Followers</div>
       </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ profile.following.count }}</div>
+        <div class="stat-label">Following</div>
+      </div>
+    </div>
 
-      <!-- User Posts -->
-      <section class="mt-5">
-        <h4 class="fw-bold mb-3">Posts</h4>
-        {% if posts %}
-        <div class="row row-cols-1 row-cols-md-2 g-4">
-          {% for post in posts %}
-          <div class="col" id="post-{{ post.id }}">
-            <div class="card shadow-sm h-100 rounded-4">
-              {% if post.image %}
-              <img
-                src="{{ post.image.url }}"
-                class="card-img-top rounded-top-4"
-                alt="Post by {{ profile.user.username }}"
-                style="object-fit: cover; height: 200px"
-              />
-              {% endif %}
-              <div class="card-body">
-                <p class="card-text">{{ post.caption }}</p>
-                <small class="text-muted">
-                  Posted on {{ post.created_at|date:"M d, Y" }}
-                </small>
+    <!-- Buttons -->
+    <div class="mt-4">
+      {% if request.user == profile.user %}
+      <a href="{% url 'edit_profile' %}" class="primary-btn me-2">
+        <i class="bi bi-pencil-square"></i> Edit Profile
+      </a>
+      <a href="{% url 'logout' %}" class="outline-btn">
+        <i class="bi bi-box-arrow-right"></i> Log Out
+      </a>
+      {% else %}
+        <!-- Follow/Unfollow AJAX button -->
+        <button id="follow-btn" class="follow-btn {% if is_following %}danger{% else %}success{% endif %}" data-url="{% url 'follow_toggle' profile.user.username %}">
+          {% if is_following %}
+            <i class="bi bi-person-dash"></i> Unfollow
+          {% else %}
+            <i class="bi bi-person-plus"></i> Follow
+          {% endif %}
+        </button>
 
-                <div class="mt-3 d-flex justify-content-between align-items-center border-top pt-3">
-                  <!-- Likes -->
-                  <span
-                    class="badge bg-gradient px-3 py-2 shadow-sm"
-                    style="background: linear-gradient(45deg, #d4c6c9, #3f3634); font-size: 0.9rem; color: black;"
-                  >
-                    ❤️ {{ post.like_count }} Likes
-                  </span>
-
-                  <!-- Delete button -->
-                  {% if request.user == profile.user %}
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 rounded-pill shadow-sm delete-post-btn"
-                    data-post-id="{{ post.id }}"
-                  >
-                    <i class="bi bi-trash"></i> Delete
-                  </button>
-                  {% endif %}
-                </div>
-              </div>
+        <!-- Message form -->
+        <div class="instagram-card mt-4">
+          <h5 class="fw-bold mb-3">
+            <i class="bi bi-chat-dots"></i> Send a Message
+          </h5>
+          <form method="post" action="{% url 'send_message' profile.user.id %}">
+            {% csrf_token %}
+            <div class="input-group">
+              <input type="text" name="content" class="form-input rounded-start-pill" placeholder="Write your message..." required>
+              <button type="submit" class="primary-btn rounded-end-pill">
+                <i class="bi bi-send"></i> Send
+              </button>
             </div>
-          </div>
-          {% endfor %}
+          </form>
         </div>
-        {% else %}
-        <p class="text-muted">No posts yet.</p>
-        {% endif %}
-      </section>
+      {% endif %}
     </div>
   </div>
+
+  <!-- User Posts -->
+  <section>
+    <h4 class="fw-bold mb-3">Posts</h4>
+    {% if posts %}
+    <div class="profile-posts-grid">
+      {% for post in posts %}
+      <div class="profile-post-thumbnail" id="post-{{ post.id }}">
+        {% if post.image %}
+        <img src="{{ post.image.url }}" alt="Post by {{ profile.user.username }}">
+        {% endif %}
+        <!-- Overlay for delete if owner -->
+        {% if request.user == profile.user %}
+        <button type="button" class="btn btn-sm btn-outline-danger delete-post-btn" data-post-id="{{ post.id }}" style="position: absolute; top: 5px; right: 5px;">
+          <i class="bi bi-trash"></i>
+        </button>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted">No posts yet.</p>
+    {% endif %}
+  </section>
 </div>
 
 <!-- ✅ AJAX script for follow/unfollow -->
@@ -182,12 +120,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // Update button text & style
           if (data.action === "followed") {
-            followBtn.classList.remove("btn-success");
-            followBtn.classList.add("btn-outline-danger");
+            followBtn.classList.remove("success");
+            followBtn.classList.add("danger");
             followBtn.innerHTML = '<i class="bi bi-person-dash"></i> Unfollow';
           } else {
-            followBtn.classList.remove("btn-outline-danger");
-            followBtn.classList.add("btn-success");
+            followBtn.classList.remove("danger");
+            followBtn.classList.add("success");
             followBtn.innerHTML = '<i class="bi bi-person-plus"></i> Follow';
           }
 

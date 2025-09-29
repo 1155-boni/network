@@ -9,77 +9,8 @@
   <title>{% block title %} InstaFinsta{% endblock %}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
-  <style>
-    
-    body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #fff;
-    }
-
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: 260px;
-      background: #f8f9fa;
-      border-right: 1px solid #ddd;
-      padding: 1rem;
-      overflow-y: auto;
-      z-index: 1000;
-    }
-
-    .sidebar h4 {
-      font-weight: bold;
-      margin-bottom: 1.5rem;
-    }
-
-    .sidebar .nav-link {
-      border-radius: 20px;
-      padding: 10px 15px;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: #333;
-      transition: background 0.2s;
-    }
-    .sidebar .nav-link:hover {
-      background: #e9ecef;
-    }
-    .sidebar .nav-link.active {
-      background: #0d6efd;
-      color: white !important;
-    }
-
-    .content {
-      margin-left: 260px;
-      padding: 2rem;
-      min-height: 100vh;
-      background: #fff;
-    }
-
-    .search-box input {
-      border-radius: 20px;
-      padding: 8px 15px;
-    }
-
-    @media (max-width: 768px) {
-      .sidebar { width: 200px; }
-      .content { margin-left: 200px; }
-    }
-
-    @media (max-width: 576px) {
-      .sidebar {
-        position: relative;
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid #ddd;
-      }
-      .content { margin-left: 0; }
-    }
-  </style>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/instafinsta.css' %}">
 </head>
 <body>
 

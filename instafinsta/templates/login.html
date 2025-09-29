@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-  <div class="card shadow-lg border-0 rounded-4" style="max-width: 450px; width: 100%;">
-    <div class="card-body p-4">
+<div class="auth-container">
+  <div class="instagram-card auth-card">
+    <div class="card-body">
 
       <!-- Heading -->
-      <h2 class="fw-bold text-center mb-4">Login</h2>
+      <h2 class="auth-heading">Login</h2>
 
       <form method="post">
         {% csrf_token %}
@@ -15,17 +16,17 @@
         <!-- Django form fields -->
         <div class="mb-3">
           {{ form.username.label_tag }}
-          {{ form.username }}
+          {{ form.username|add_class:"form-input" }}
         </div>
 
         <div class="mb-3">
           {{ form.password.label_tag }}
-          {{ form.password }}
+          {{ form.password|add_class:"form-input" }}
         </div>
 
         <!-- Submit Button -->
         <div class="d-grid">
-          <button type="submit" class="btn btn-primary rounded-pill shadow-sm">
+          <button type="submit" class="primary-btn">
             <i class="bi bi-box-arrow-in-right"></i> Login
           </button>
         </div>
@@ -36,7 +37,7 @@
 
       <!-- Signup redirect -->
       <p class="text-center mb-0">
-        Don’t have an account? 
+        Don’t have an account?
         <a href="{% url 'signup' %}" class="text-decoration-none fw-bold text-primary">
           Sign up
         </a>

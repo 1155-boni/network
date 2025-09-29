@@ -3,92 +3,78 @@
 {% block title %}Edit Profile{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-  <div class="row justify-content-center">
-    <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+<div class="auth-container">
+  <div class="instagram-card">
+    <h3 class="auth-heading">Edit Profile</h3>
 
-      {% if messages %}
-        <div class="mb-4">
-          {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-          {% endfor %}
+    {% if messages %}
+      <div class="mb-4">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="needs-validation">
+      {% csrf_token %}
+
+      <!-- Avatar -->
+      <div class="text-center mb-4">
+        {% if user.profile.avatar %}
+          <img id="avatarPreview" src="{{ user.profile.avatar.url }}" class="profile-pic-preview mb-3">
+        {% else %}
+          <img id="avatarPreview" src="https://via.placeholder.com/130?text=Photo" class="profile-pic-preview mb-3">
+        {% endif %}
+        <div class="d-flex justify-content-center">
+          <label for="id_avatar" class="outline-btn btn-sm px-3">
+            <i class="bi bi-camera"></i> Change Photo
+          </label>
         </div>
-      {% endif %}
+        {{ profile_form.avatar }}
+      </div>
 
-      <div class="card border-0 shadow-lg rounded-4">
-        <div class="card-body p-4 p-md-5">
-          <h3 class="card-title text-center mb-4 fw-bold text-primary">Edit Profile</h3>
-
-          <form method="post" enctype="multipart/form-data" class="needs-validation">
-            {% csrf_token %}
-
-            <!-- Avatar -->
-            <div class="text-center mb-4">
-              {% if user.profile.avatar %}
-                <img id="avatarPreview"
-                     src="{{ user.profile.avatar.url }}"
-                     class="rounded-circle border border-3 border-light shadow-sm mb-3"
-                     width="130" height="130" style="object-fit:cover;">
-              {% else %}
-                <img id="avatarPreview"
-                     src="https://via.placeholder.com/130?text=Photo"
-                     class="rounded-circle border border-3 border-light shadow-sm mb-3"
-                     width="130" height="130" style="object-fit:cover;">
-              {% endif %}
-              <div class="d-flex justify-content-center">
-                <label for="id_avatar" class="btn btn-outline-primary btn-sm px-3 rounded-pill">
-                  <i class="bi bi-camera"></i> Change Photo
-                </label>
-              </div>
-              {{ profile_form.avatar }}
-            </div>
-
-            <!-- User fields -->
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-semibold">{{ user_form.first_name.label }}</label>
-                {{ user_form.first_name|add_class:"form-control rounded-pill shadow-sm" }}
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-semibold">{{ user_form.last_name.label }}</label>
-                {{ user_form.last_name|add_class:"form-control rounded-pill shadow-sm" }}
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-semibold">{{ user_form.username.label }}</label>
-                {{ user_form.username|add_class:"form-control rounded-pill shadow-sm" }}
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-semibold">{{ user_form.email.label }}</label>
-                {{ user_form.email|add_class:"form-control rounded-pill shadow-sm" }}
-              </div>
-            </div>
-
-            <!-- Profile fields -->
-            <div class="mb-3">
-              <label class="form-label fw-semibold">{{ profile_form.bio.label }}</label>
-              {{ profile_form.bio|add_class:"form-control rounded-4 shadow-sm" }}
-            </div>
-
-            <!-- Buttons -->
-            <div class="d-flex justify-content-between mt-4">
-              <a href="{% url 'profile' request.user.username %}" class="btn btn-outline-secondary w-50 me-2 rounded-pill shadow-sm">
-                Cancel
-              </a>
-              <button type="submit" class="btn btn-primary w-50 ms-2 rounded-pill shadow-sm">
-                Save Changes
-              </button>
-            </div>
-          </form>
+      <!-- User fields -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-semibold">{{ user_form.first_name.label }}</label>
+          {{ user_form.first_name|add_class:"form-input" }}
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-semibold">{{ user_form.last_name.label }}</label>
+          {{ user_form.last_name|add_class:"form-input" }}
         </div>
       </div>
 
-    </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-semibold">{{ user_form.username.label }}</label>
+          {{ user_form.username|add_class:"form-input" }}
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-semibold">{{ user_form.email.label }}</label>
+          {{ user_form.email|add_class:"form-input" }}
+        </div>
+      </div>
+
+      <!-- Profile fields -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">{{ profile_form.bio.label }}</label>
+        {{ profile_form.bio|add_class:"form-input" }}
+      </div>
+
+      <!-- Buttons -->
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'profile' request.user.username %}" class="outline-btn w-50 me-2">
+          Cancel
+        </a>
+        <button type="submit" class="primary-btn w-50 ms-2">
+          Save Changes
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 

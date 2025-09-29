@@ -2,46 +2,69 @@
 {% load static %}
 
 {% block content %}
-<div class="profile-container">
-    <h2>{{ user_profile.username }}'s Profile</h2>
-
-    <!-- Profile Picture -->
+<div class="container">
+  <!-- Profile Card -->
+  <div class="instagram-card text-center mb-5">
+    <!-- Avatar -->
     {% if profile.avatar %}
-        <img src="{{ profile.avatar.url }}" alt="Profile Picture" width="120" height="120">
+    <img src="{{ profile.avatar.url }}" alt="{{ user_profile.username }}'s avatar" class="profile-avatar">
     {% else %}
-        <img src="{% static 'images/default.jpg' %}" alt="Default Profile" width="120" height="120">
+    <img src="{% static 'images/default.jpg' %}" alt="Default user avatar" class="profile-avatar">
     {% endif %}
+
+    <!-- Username -->
+    <h3 class="fw-bold mb-2">{{ user_profile.username }}</h3>
+
+    <!-- Bio -->
+    <p class="text-muted mb-4">
+      {% if profile.bio %} {{ profile.bio }} {% else %}
+      <em>No bio yet</em> {% endif %}
+    </p>
 
     <!-- Followers / Following -->
-    <p>Followers: <span id="followers-count">{{ followers_count }}</span></p>
-    <p>Following: {{ following_count }}</p>
+    <div class="profile-stats">
+      <div class="stat-item">
+        <div class="stat-number" id="followers-count">{{ followers_count }}</div>
+        <div class="stat-label">Followers</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ following_count }}</div>
+        <div class="stat-label">Following</div>
+      </div>
+    </div>
 
-    <!-- Follow/Unfollow Button -->
-    {% if not is_owner %}
-        <button
-            id="follow-btn"
-            class="btn {% if request.user in profile.followers.all %}btn-danger{% else %}btn-primary{% endif %}"
-            data-url="{% url 'follow_toggle' user_profile.username %}"
-        >
-            {% if request.user in profile.followers.all %}
-                Unfollow
-            {% else %}
-                Follow
-            {% endif %}
+    <!-- Buttons -->
+    <div class="mt-4">
+      {% if not is_owner %}
+        <!-- Follow/Unfollow AJAX button -->
+        <button id="follow-btn" class="follow-btn {% if request.user in profile.followers.all %}danger{% else %}success{% endif %}" data-url="{% url 'follow_toggle' user_profile.username %}">
+          {% if request.user in profile.followers.all %}
+            <i class="bi bi-person-dash"></i> Unfollow
+          {% else %}
+            <i class="bi bi-person-plus"></i> Follow
+          {% endif %}
         </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- User Posts -->
+  <section>
+    <h4 class="fw-bold mb-3">Posts</h4>
+    {% if user_profile.post_set.all %}
+    <div class="profile-posts-grid">
+      {% for post in user_profile.post_set.all %}
+      <div class="profile-post-thumbnail">
+        {% if post.image %}
+        <img src="{{ post.image.url }}" alt="Post by {{ user_profile.username }}">
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted">No posts yet.</p>
     {% endif %}
-
-    <hr>
-
-    <h3>Posts</h3>
-    {% for post in user_profile.post_set.all %}
-        <div class="post">
-            <p>{{ post.content }}</p>
-            <small>{{ post.created_at }}</small>
-        </div>
-    {% empty %}
-        <p>No posts yet.</p>
-    {% endfor %}
+  </section>
 </div>
 
 <!-- AJAX Script for Follow/Unfollow -->
@@ -66,15 +89,15 @@ document.addEventListener("DOMContentLoaded", function () {
                         return;
                     }
 
-                    // Update button text and style
+                    // Update button text & style
                     if (data.action === "followed") {
-                        followBtn.classList.remove("btn-primary");
-                        followBtn.classList.add("btn-danger");
-                        followBtn.innerText = "Unfollow";
+                        followBtn.classList.remove("success");
+                        followBtn.classList.add("danger");
+                        followBtn.innerHTML = '<i class="bi bi-person-dash"></i> Unfollow';
                     } else {
-                        followBtn.classList.remove("btn-danger");
-                        followBtn.classList.add("btn-primary");
-                        followBtn.innerText = "Follow";
+                        followBtn.classList.remove("danger");
+                        followBtn.classList.add("success");
+                        followBtn.innerHTML = '<i class="bi bi-person-plus"></i> Follow';
                     }
 
                     // Update followers count
