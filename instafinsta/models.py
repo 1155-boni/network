@@ -83,16 +83,7 @@ class Message(models.Model):
         return f"From {self.sender} to {self.receiver}: {self.content[:30]}"
     
     
-class Follow(models.Model):
-    follower = models.ForeignKey(User, related_name="following", on_delete=models.CASCADE)
-    following = models.ForeignKey(User, related_name="followers", on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ("follower", "following")  # prevents duplicate follows
-
-    def __str__(self):
-        return f"{self.follower.username} follows {self.following.username}"
 
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):

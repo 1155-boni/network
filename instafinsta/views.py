@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib import messages
 from instafinsta.serializers import ProfileDetailSerializer, ProfileSerializer, ProfileUpdateSerializer
-from .models import Follow, Profile, Post, Comment, Message
+from .models import Profile, Post, Comment, Message
 from .forms import PostForm, ProfileForm, MessageForm, UserForm, UserUpdateForm
 from django.db.models import Q, Max, Count
 from rest_framework.decorators import api_view
@@ -339,11 +339,11 @@ def toggle_follow(request, username):
     if request.user == target_user:
         return JsonResponse({"error": "You cannot follow yourself."}, status=400)
 
-    if target_profile.followers.filter(id=request.user.id).exists():
-        target_profile.followers.remove(request.user)
+    if request.user.profile.following.filter(id=target_profile.id).exists():
+        request.user.profile.following.remove(target_profile)
         action = "unfollowed"
     else:
-        target_profile.followers.add(request.user)
+        request.user.profile.following.add(target_profile)
         action = "followed"
 
     return JsonResponse({
@@ -400,11 +400,11 @@ def follow_unfollow(request, username):
     if request.user == target_user:
         messages.error(request, "You cannot follow yourself.")
     else:
-        if request.user in target_profile.followers.all():
-            target_profile.followers.remove(request.user)
+        if request.user.profile.following.filter(id=target_profile.id).exists():
+            request.user.profile.following.remove(target_profile)
             messages.success(request, f"You unfollowed {target_user.username}")
         else:
-            target_profile.followers.add(request.user)
+            request.user.profile.following.add(target_profile)
             messages.success(request, f"You followed {target_user.username}")
 
     return redirect("view_profile", username=username)
@@ -428,58 +428,6 @@ def home(request):
     if request.user.is_authenticated:
         return redirect('feed')
     return redirect('login')
-
-
-
-@login_required
-def follow_user(request, username):
-    target_user = get_object_or_404(User, username=username)
-    target_profile = target_user.profile
-    current_profile = request.user.profile
-
-    # Add current user to target's followers
-    target_profile.followers.add(request.user)
-
-    # Add target user to current's following
-    current_profile.following.add(target_user)
-
-    return redirect("view_profile", username=username)
-
-
-@login_required
-def unfollow_user(request, username):
-    target_user = get_object_or_404(User, username=username)
-    target_profile = target_user.profile
-    current_profile = request.user.profile
-
-    # Remove current user from target's followers
-    target_profile.followers.remove(request.user)
-
-    # Remove target user from current's following
-    current_profile.following.remove(target_user)
-
-    return redirect("view_profile", username=username)
-
-@login_required
-def follow(request, username):
-    target_user = get_object_or_404(User, username=username)
-    target_profile = get_object_or_404(Profile, user=target_user)
-
-    if target_profile != request.user.profile:
-        request.user.profile.following.add(target_profile)
-
-    return redirect("view_profile", username=username)
-
-
-@login_required
-def unfollow(request, username):
-    target_user = get_object_or_404(User, username=username)
-    target_profile = get_object_or_404(Profile, user=target_user)
-
-    if target_profile != request.user.profile:
-        request.user.profile.following.remove(target_profile)
-
-    return redirect("view_profile", username=username)
 
 
 
