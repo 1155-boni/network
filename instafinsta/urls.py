@@ -20,7 +20,6 @@ urlpatterns = [
     path("post/<int:post_id>/", post_detail, name="post_detail"),
     path("toggle-follow/<str:username>/", views.toggle_follow, name="follow_toggle"),
     path("toggle-like/<int:post_id>/", views.toggle_like, name="toggle_like"),
-    path("unfollow/<str:username>/", unfollow, name="unfollow"),
     path('api/profiles/', profile_list, name="profile-list"),
     path("post/<int:post_id>/delete/", delete_post, name="delete_post"),
     path("comment/<int:post_id>/", add_comment, name="add_comment"),

@@ -7,4 +7,4 @@ erver
 - [x] Fix URL name in urls.py to 'follow_toggle'
 - [x] Create migration for removing Follow model
 - [x] Test follow functionality
-- [ ] Commit changes
+- [x] Commit changes
