@@ -66,7 +66,7 @@
               <button
                 id="follow-btn"
                 class="btn {% if is_following %}btn-outline-danger{% else %}btn-success{% endif %} px-4 rounded-pill"
-                data-url="{% url 'toggle_follow' profile.user.username %}"
+                data-url="{% url 'follow_toggle' profile.user.username %}"
               >
                 {% if is_following %}
                   <i class="bi bi-person-dash"></i> Unfollow
