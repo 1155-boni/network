@@ -3,7 +3,65 @@ import random
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from instafinsta.serializers import ProfileDetailSerializer, ProfileSerializer, ProfileUpdateSerializer
+from .models import Profile, Post, Comment, Message
+from .forms import PostForm, ProfileForm, MessageForm, UserForm, UserUpdateForm
+from django.db.models import Q, Max, Count
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import parser_classes
+from rest_framework.pagination import PageNumberPagination
+from django.views.decorators.csrf import csrf_exempt
+
+# ---------------------------
+# Auth Views
+# ---------------------------
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Auto login after signup
+            return redirect('feed')
+    else:
+        form = UserCreationForm()
+    return render(request, 'signup.html', {'form': form})
+
+def login_view(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            next_url = request.POST.get("next") or request.GET.get("next")
+            return redirect(next_url) if next_url else redirect("feed")  # Fallback to feed
+    else:
+        form = AuthenticationForm()
+    return render(request, "login.html", {
+        "form": form,
+        "next": request.GET.get("next", "")
+    })
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+@login_required
+def create_test_user(request):
+    username = "testuser"
+    password = "testpassword123"
+    if not User.objects.filter(username=username).exists():
+        user = User.objects.create_user(username=username, password=password)
+        user.save()
+    else:
+        user = User.objects.get(username=username)
+    login(request, user)
+    return redirect('view_profile', username=username)
+
+# ... rest of the views unchanged ...
 from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib import messages
