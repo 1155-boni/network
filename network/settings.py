@@ -33,7 +33,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG')
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOST', '127.0.0.1,localhost','').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOST', '127.0.0.1,localhost').split(',')
 
 # Application definition
 
