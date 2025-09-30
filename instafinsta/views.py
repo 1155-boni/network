@@ -3,8 +3,10 @@ import random
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.contrib import messages
 from instafinsta.serializers import ProfileDetailSerializer, ProfileSerializer, ProfileUpdateSerializer
 from .models import Profile, Post, Comment, Message
 from .forms import PostForm, ProfileForm, MessageForm, UserForm, UserUpdateForm
