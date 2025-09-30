@@ -330,26 +330,43 @@ def profile(request, username=None):
 # ---------------------------
 # Follow/Unfollow Views
 # ---------------------------
-# 🔹 Follow/Unfollow (AJAX)
+# 🔹 Follow/Unfollow (AJAX and non-AJAX)
 @login_required
 def toggle_follow(request, username):
     target_user = get_object_or_404(User, username=username)
     target_profile = get_object_or_404(Profile, user=target_user)
+    current_profile = request.user.profile
 
-    if request.user == target_user:
-        return JsonResponse({"error": "You cannot follow yourself."}, status=400)
+    if target_profile == current_profile:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'error': 'Cannot follow yourself'}, status=400)
+        messages.error(request, "You cannot follow yourself.")
+        return redirect("view_profile", username=username)
 
-    if request.user.profile.following.filter(id=target_profile.id).exists():
-        request.user.profile.following.remove(target_profile)
-        action = "unfollowed"
+    is_following = current_profile.following.filter(id=target_profile.id).exists()
+
+    if is_following:
+        current_profile.following.remove(target_profile)
+        target_profile.followers.remove(current_profile)
+        action = 'unfollowed'
+        if not request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            messages.success(request, f"You unfollowed {target_user.username}")
     else:
-        request.user.profile.following.add(target_profile)
-        action = "followed"
+        current_profile.following.add(target_profile)
+        target_profile.followers.add(current_profile)
+        action = 'followed'
+        if not request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            messages.success(request, f"You followed {target_user.username}")
 
-    return JsonResponse({
-        "action": action,
-        "followers_count": target_profile.followers.count()
-    })
+    followers_count = target_profile.followers.count()
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'action': action,
+            'followers_count': followers_count
+        })
+
+    return redirect("view_profile", username=username)
 
 
 @login_required
@@ -373,42 +390,6 @@ def toggle_like(request, post_id):
     return redirect("feed")
 
 
-# @login_required
-# def unfollow_toggle(request, username):
-#     target_user = get_object_or_404(User, username=username)
-#     target_profile = get_object_or_404(Profile, user=target_user)
-
-#     if request.user == target_user:
-#         messages.warning(request, "You cannot unfollow yourself.")
-#         return redirect("view_profile", username=username)
-    
-#     if request.user in target_profile.followers.all():
-#         target_profile.followers.remove(request.user)
-#         messages.success(request, f"You unfollowed {target_user.username}.")
-#     else:
-#         target_profile.followers.add(request.user)
-#         messages.success(request, f"You followed {target_user.username}.")
-
-#         return redirect("view_profile", username=username)
-
-
-@login_required
-def follow_unfollow(request, username):
-    target_user = get_object_or_404(User, username=username)
-    target_profile = get_object_or_404(Profile, user=target_user)
-
-    if request.user == target_user:
-        messages.error(request, "You cannot follow yourself.")
-    else:
-        if request.user.profile.following.filter(id=target_profile.id).exists():
-            request.user.profile.following.remove(target_profile)
-            messages.success(request, f"You unfollowed {target_user.username}")
-        else:
-            request.user.profile.following.add(target_profile)
-            messages.success(request, f"You followed {target_user.username}")
-
-    return redirect("view_profile", username=username)
-
 # ---------------------------
 # API Views
 # ---------------------------
@@ -428,7 +409,3 @@ def home(request):
     if request.user.is_authenticated:
         return redirect('feed')
     return redirect('login')
-
-
-
-
