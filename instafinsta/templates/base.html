@@ -193,6 +193,149 @@ body {
 .primary-btn:active {
   background-color: #1e5b9a;
 }
+
+/* Post Styling - Instagram Inspired */
+.post-container {
+  max-width: 600px;
+  margin: 20px auto;
+  background-color: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.post-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  object-fit: cover;
+}
+
+.post-header div {
+  flex: 1;
+}
+
+.post-header a {
+  display: block;
+  font-weight: 600;
+  color: #262626;
+  text-decoration: none;
+}
+
+.post-header small {
+  display: block;
+  color: #8e8e8e;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.post-image {
+  width: 100%;
+  max-height: 600px;
+  object-fit: cover;
+  display: block;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+.post-actions div:first-child {
+  display: flex;
+  gap: 16px;
+}
+
+.like-btn, .comment-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #262626;
+  transition: color 0.2s;
+}
+
+.like-btn:hover, .comment-btn:hover {
+  color: #3897f0;
+}
+
+.post-likes {
+  padding: 0 16px 8px;
+  font-size: 14px;
+  color: #262626;
+}
+
+.post-caption {
+  padding: 8px 16px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #262626;
+}
+
+.post-caption strong {
+  font-weight: 600;
+}
+
+.form-input {
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #fafafa;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3897f0;
+  background-color: #fff;
+}
+
+.outline-btn {
+  border: 1px solid #dbdbdb;
+  background: none;
+  color: #3897f0;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.outline-btn:hover {
+  background-color: #f0f8ff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .post-container {
+    margin: 10px;
+    border-radius: 8px;
+  }
+
+  .post-header {
+    padding: 10px 12px;
+  }
+
+  .post-actions {
+    padding: 8px 12px;
+  }
+
+  .post-likes, .post-caption {
+    padding: 4px 12px;
+  }
+}
   </style>
 </head>
 <body>
