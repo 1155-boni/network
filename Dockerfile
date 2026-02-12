@@ -22,6 +22,9 @@ RUN pip install -r requirements.txt
 # Copy project
 COPY . /app/
 
+# Run database migrations
+RUN python manage.py migrate --noinput
+
 # Collect static files
 RUN python manage.py collectstatic --noinput
 

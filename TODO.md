@@ -1,12 +1,13 @@
-# TODO: Style Signup and Login Pages
+# TODO: Fix Database Connection and Migrations for Deployment
 
 ## Tasks
-- [x] Add custom CSS styles in base.html for auth pages (login and signup) to achieve Instagram-inspired look
-  - Center the auth container
-  - Style the card with white background, shadow, rounded corners
-  - Style form inputs and buttons with blue accents
-- [x] Test the styling by running the Django server and checking the pages
+- [x] Verify DATABASE_URL environment variable in Render dashboard (confirmed correct)
+- [x] Add database migrations to Dockerfile build process
+- [ ] Redeploy the application on Render to apply the Dockerfile changes
+- [ ] Test the signup functionality after redeployment
 
 ## Notes
-- Changes will be made to instafinsta/templates/base.html
-- Ensure responsiveness and compatibility with existing Bootstrap
+- The initial error was connection refused to localhost, but DATABASE_URL was correct
+- Added 'RUN python manage.py migrate --noinput' to Dockerfile before collectstatic
+- This ensures database tables are created during the build process on Render
+- Redeployment is required for the changes to take effect
