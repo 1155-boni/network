@@ -18,6 +18,55 @@
   box-sizing: border-box;
 }
 
+/* Sidebar Styling */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: #fff;
+  border-right: 1px solid #dbdbdb;
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.sidebar h4 {
+  margin-bottom: 20px;
+  color: #262626;
+}
+
+.sidebar .search-box {
+  margin-bottom: 20px;
+}
+
+.sidebar .nav-link {
+  color: #262626;
+  padding: 10px 0;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  color: #3897f0;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  padding-left: 10px;
+}
+
+/* Main Content */
+.content {
+  margin-left: 250px;
+  padding: 20px;
+  min-height: 100vh;
+  background-color: #fafafa;
+}
+
 /* Follow Button Styling */
 #follow-btn {
   padding: 8px 16px;
@@ -72,13 +121,7 @@
 </head>
 <body>
 
-  <!-- Mobile Menu Toggle -->
-  <button class="mobile-menu-toggle d-md-none" id="mobile-menu-toggle">
-    <i class="bi bi-list"></i>
-  </button>
 
-  <!-- Sidebar Overlay for Mobile -->
-  <div class="sidebar-overlay d-md-none" id="sidebar-overlay"></div>
 
   <!-- Sidebar -->
   <div class="sidebar d-flex flex-column" id="sidebar">
